@@ -31,8 +31,8 @@ const API = {
     { text: "宝剑锋从磨砺出，梅花香自苦寒来。", from: "警世贤文" },
     { text: "书山有路勤为径，学海无涯苦作舟。", from: "韩愈" },
     { text: "业精于勤荒于嬉，行成于思毁于随。", from: "韩愈" },
-    { text: "先完成，再完美。", from: "Jinhong" },
-    { text: "代码如诗，逻辑如画。", from: "Jinhong" },
+    { text: "先完成，再完美。", from: "Jinhong270" },
+    { text: "代码如诗，逻辑如画。", from: "Jinhong270" },
     { text: "简约而不简单。", from: "" },
     { text: "做难而正确的事。", from: "" },
     { text: "Stay hungry, stay foolish.", from: "Steve Jobs" },
@@ -49,7 +49,16 @@ const API = {
     { text: "竹外桃花三两枝，春江水暖鸭先知。", from: "苏轼" },
     { text: "不积跬步，无以至千里。", from: "荀子" },
     { text: "千里之行，始于足下。", from: "老子" },
-    { text: "知者不惑，仁者不忧，勇者不惧。", from: "论语" }
+    { text: "知者不惑，仁者不忧，勇者不惧。", from: "论语" },
+    { text: "博观而约取，厚积而薄发。", from: "苏轼" },
+    { text: "行到水穷处，坐看云起时。", from: "王维" },
+    { text: "空山新雨后，天气晚来秋。", from: "王维" },
+    { text: "明月松间照，清泉石上流。", from: "王维" },
+    { text: "我见青山多妩媚，料青山见我应如是。", from: "辛弃疾" },
+    { text: "众里寻他千百度，蓦然回首，那人却在灯火阑珊处。", from: "辛弃疾" },
+    { text: "了却君王天下事，赢得生前身后名。", from: "辛弃疾" },
+    { text: "古今多少事，都付笑谈中。", from: "杨慎" },
+    { text: "青山依旧在，几度夕阳红。", from: "杨慎" }
   ],
 
   getQuote() {
@@ -59,12 +68,12 @@ const API = {
 
   async fetchWithRetry(url, options = {}, retries = 1) {
     try {
-      const res = await fetch(url, options);
+      const res = await fetch(url, { ...options, mode: "cors", cache: "no-store" });
       if (!res.ok) throw new Error("status " + res.status);
       return res;
     } catch (e) {
       if (retries > 0) {
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 500));
         return this.fetchWithRetry(url, options, retries - 1);
       }
       throw e;
@@ -72,25 +81,32 @@ const API = {
   },
 
   async getLocation() {
-    try {
-      const res = await this.fetchWithRetry("https://jinhong270-api.hf.space/ip");
-      const data = await res.json();
-      return {
-        city: data.city || data.regionName || "未知",
-        region: data.regionName || data.region || "",
-        country: data.country || "",
-        lat: data.lat,
-        lon: data.lon
-      };
-    } catch {
-      return {
-        city: "北京",
-        region: "北京",
-        country: "中国",
-        lat: 39.9042,
-        lon: 116.4074
-      };
+    const urls = [
+      "https://jinhong270-api.hf.space/ip",
+      "https://jinhong270-api.hf.space/ip/"
+    ];
+    for (const url of urls) {
+      try {
+        const res = await this.fetchWithRetry(url);
+        const data = await res.json();
+        if (data && (data.lat || data.city)) {
+          return {
+            city: data.city || data.regionName || "未知",
+            region: data.regionName || data.region || "",
+            country: data.country || data.countryCode || "",
+            lat: Number(data.lat),
+            lon: Number(data.lon)
+          };
+        }
+      } catch (e) {}
     }
+    return {
+      city: "北京",
+      region: "北京",
+      country: "中国",
+      lat: 39.9042,
+      lon: 116.4074
+    };
   },
 
   async getWeather(lat, lon) {
@@ -137,18 +153,35 @@ const API = {
     return map[code] || "未知";
   },
 
-  getGradient() {
-    const grads = [
-      "linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%)",
-      "linear-gradient(135deg, #0c0a1d 0%, #1a1035 50%, #0c0a1d 100%)",
-      "linear-gradient(160deg, #0f172a 0%, #164e63 45%, #0f172a 100%)",
-      "linear-gradient(135deg, #111827 0%, #1f2937 50%, #111827 100%)",
-      "linear-gradient(145deg, #0a0a0f 0%, #1e1b4b 50%, #0a0a0f 100%)",
-      "linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%)",
-      "linear-gradient(150deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-      "linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)",
-      "linear-gradient(160deg, #0b0c10 0%, #1f2833 50%, #0b0c10 100%)"
-    ];
-    return grads[Math.floor(Math.random() * grads.length)];
+  getTimeTheme() {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 8) return "dawn";
+    if (h >= 8 && h < 17) return "day";
+    if (h >= 17 && h < 20) return "dusk";
+    return "night";
+  },
+
+  getGradient(theme) {
+    const map = {
+      dawn: [
+        "linear-gradient(160deg, #1a1035 0%, #4a1942 35%, #c45c26 70%, #f4a261 100%)",
+        "linear-gradient(145deg, #0f0c29 0%, #302b63 40%, #e07a5f 100%)"
+      ],
+      day: [
+        "linear-gradient(160deg, #0c4a6e 0%, #0369a1 40%, #7dd3fc 100%)",
+        "linear-gradient(145deg, #134e4a 0%, #0f766e 45%, #5eead4 100%)"
+      ],
+      dusk: [
+        "linear-gradient(160deg, #1e1b4b 0%, #7c3aed 35%, #f97316 70%, #fbbf24 100%)",
+        "linear-gradient(145deg, #2e1065 0%, #9d174d 50%, #fb923c 100%)"
+      ],
+      night: [
+        "linear-gradient(160deg, #020617 0%, #0f172a 40%, #1e293b 100%)",
+        "linear-gradient(145deg, #0a0a0f 0%, #1e1b4b 50%, #0f172a 100%)",
+        "linear-gradient(160deg, #020617 0%, #164e63 50%, #0f172a 100%)"
+      ]
+    };
+    const list = map[theme] || map.night;
+    return list[Math.floor(Math.random() * list.length)];
   }
 };

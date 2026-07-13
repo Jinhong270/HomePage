@@ -2,11 +2,13 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jinhong — Digital Space</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Jinhong270 — Digital Space</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/animations.css">
 </head>
@@ -17,29 +19,29 @@
 
   <main class="container">
     <header class="header fade-in">
-      <div class="logo">Jinhong</div>
+      <div class="logo">Jinhong270</div>
       <div class="tagline">Digital Space · 个人空间</div>
     </header>
 
     <section class="hero fade-in delay-1">
-      <div class="quote-box glass" id="quoteBox" title="点击换一句">
+      <div class="quote-box glass liquid" id="quoteBox">
         <p id="quote" class="quote">加载中...</p>
         <p id="quote-from" class="quote-from"></p>
       </div>
     </section>
 
     <section class="info-grid fade-in delay-2">
-      <div class="card glass">
+      <div class="card glass liquid">
         <div class="card-label">当前时间</div>
         <div id="clock" class="card-value">--:--:--</div>
         <div id="date" class="card-sub">----</div>
       </div>
-      <div class="card glass">
+      <div class="card glass liquid">
         <div class="card-label">天气</div>
         <div id="weather-temp" class="card-value">--°</div>
         <div id="weather-desc" class="card-sub">定位中...</div>
       </div>
-      <div class="card glass">
+      <div class="card glass liquid">
         <div class="card-label">位置</div>
         <div id="location" class="card-value small">--</div>
         <div id="weather-extra" class="card-sub">--</div>
@@ -47,28 +49,32 @@
     </section>
 
     <section class="extra-grid fade-in delay-2">
-      <div class="card glass">
+      <div class="card glass liquid">
         <div class="card-label">体感 / 湿度</div>
         <div id="feels" class="card-value small">--°</div>
         <div id="humidity" class="card-sub">--</div>
       </div>
-      <div class="card glass">
+      <div class="card glass liquid">
         <div class="card-label">日出 · 日落</div>
         <div id="sun" class="card-value small">--:-- · --:--</div>
-        <div id="moon" class="card-sub">—</div>
+        <div class="card-sub">今日</div>
       </div>
     </section>
 
     <section class="live-section fade-in delay-3">
-      <div class="live-header glass">
+      <div class="live-header glass liquid">
         <div class="live-title">实时预览</div>
         <div class="live-switch">
-          <button class="switch-btn active" data-src="hf" id="btnHf">HF 2048</button>
-          <button class="switch-btn" data-src="gh" id="btnGh">GitHub Snake</button>
+          <button class="switch-btn active" id="btnHf">HF 2048</button>
+          <button class="switch-btn" id="btnGh">GitHub Snake</button>
         </div>
       </div>
-      <div class="live-frame-wrap glass">
-        <iframe id="liveFrame" class="live-frame" src="https://jinhong270-2048.static.hf.space" title="Live Project" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      <div class="live-frame-wrap glass liquid">
+        <div class="frame-loader" id="frameLoader">
+          <div class="spinner"></div>
+          <span>切换中...</span>
+        </div>
+        <iframe id="liveFrame" class="live-frame" src="https://jinhong270-2048.static.hf.space" title="Live Project" allowfullscreen loading="lazy"></iframe>
         <div class="frame-fallback" id="frameFallback">
           <p>页面加载中或暂时无法访问</p>
           <a id="fallbackLink" href="https://jinhong270-2048.static.hf.space" target="_blank" rel="noopener">在新标签页打开</a>
@@ -81,7 +87,7 @@
       <span class="dot">·</span>
       <a href="https://huggingface.co/Jinhong270" target="_blank" rel="noopener" class="link">Hugging Face</a>
       <span class="dot">·</span>
-      <button class="link-btn" id="refreshBg" title="换背景">换背景</button>
+      <button class="link-btn" id="refreshBg">换背景</button>
     </footer>
   </main>
 
