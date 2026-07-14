@@ -68,7 +68,7 @@ const API = {
 
   async fetchWithRetry(url, options = {}, retries = 1) {
     try {
-      const res = await fetch(url, { ...options, mode: "cors", cache: "no-store" });
+      const res = await fetch(url, { ...options, mode: "cors", cache: "no-store", redirect: "follow" });
       if (!res.ok) throw new Error("status " + res.status);
       return res;
     } catch (e) {
@@ -82,7 +82,6 @@ const API = {
 
   async getLocation() {
     const urls = [
-      "https://jinhong270-api.hf.space/ip",
       "https://jinhong270-api.hf.space/ip/"
     ];
     for (const url of urls) {
