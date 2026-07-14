@@ -62,12 +62,32 @@
       </div>
     </section>
 
+    <section class="links-section fade-in delay-3">
+      <a href="https://github.com/Jinhong270" target="_blank" rel="noopener" class="link-card glass liquid">
+        <img src="https://github.githubassets.com/favicons/favicon.svg" alt="GitHub" class="link-favicon" width="22" height="22">
+        <div class="link-info">
+          <span class="link-name">GitHub</span>
+          <span class="link-desc">github.com/Jinhong270</span>
+        </div>
+      </a>
+      <a href="https://huggingface.co/Jinhong270" target="_blank" rel="noopener" class="link-card glass liquid">
+        <img src="https://huggingface.co/favicon.ico" alt="Hugging Face" class="link-favicon" width="22" height="22">
+        <div class="link-info">
+          <span class="link-name">Hugging Face</span>
+          <span class="link-desc">huggingface.co/Jinhong270</span>
+        </div>
+      </a>
+    </section>
+
     <section class="live-section fade-in delay-3">
       <div class="live-header glass liquid">
         <div class="live-title">实时预览</div>
-        <div class="live-switch">
-          <button class="switch-btn active" id="btnHf">HF 2048</button>
-          <button class="switch-btn" id="btnGh">GitHub Snake</button>
+        <div class="live-actions">
+          <div class="live-switch">
+            <button class="switch-btn active" id="btnHf">HF 2048</button>
+            <button class="switch-btn" id="btnGh">GitHub Snake</button>
+          </div>
+          <a id="openFull" href="https://jinhong270-2048.static.hf.space" target="_blank" rel="noopener" class="open-full-btn">新标签打开</a>
         </div>
       </div>
       <div class="live-frame-wrap glass liquid">
@@ -75,19 +95,16 @@
           <div class="spinner"></div>
           <span>切换中...</span>
         </div>
-        <iframe id="liveFrame" class="live-frame" src="https://jinhong270-2048.static.hf.space" title="Live Project" allowfullscreen loading="lazy"></iframe>
+        <iframe id="liveFrame" class="live-frame" src="https://jinhong270-2048.static.hf.space" title="Live Project" allow="fullscreen; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
         <div class="frame-fallback" id="frameFallback">
           <p>页面加载中或暂时无法访问</p>
-          <a id="fallbackLink" href="https://jinhong270-2048.static.hf.space" target="_blank" rel="noopener">在新标签页打开</a>
+          <a id="fallbackLink" href="https://jinhong270-2048.static.hf.space" target="_blank" rel="noopener">在新标签页打开完整版</a>
         </div>
       </div>
+      <p class="live-tip">提示：内嵌预览可能受限，点击「新标签打开」可完整体验游戏</p>
     </section>
 
     <footer class="footer fade-in delay-4">
-      <a href="https://github.com/Jinhong270" target="_blank" rel="noopener" class="link">GitHub</a>
-      <span class="dot">·</span>
-      <a href="https://huggingface.co/Jinhong270" target="_blank" rel="noopener" class="link">Hugging Face</a>
-      <span class="dot">·</span>
       <button class="link-btn" id="refreshBg">换背景</button>
     </footer>
   </main>

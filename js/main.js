@@ -133,6 +133,7 @@ function initLivePreview() {
   const btnHf = document.getElementById("btnHf");
   const btnGh = document.getElementById("btnGh");
   const loader = document.getElementById("frameLoader");
+  const openFull = document.getElementById("openFull");
 
   let current = "hf";
   let switching = false;
@@ -148,8 +149,9 @@ function initLivePreview() {
 
     setTimeout(() => {
       frame.src = url;
-      fallbackLink.href = url;
-      fallback.classList.remove("show");
+      if (fallbackLink) fallbackLink.href = url;
+      if (openFull) openFull.href = url;
+      if (fallback) fallback.classList.remove("show");
       btnHf.classList.toggle("active", key === "hf");
       btnGh.classList.toggle("active", key === "gh");
       localStorage.setItem("jinhong-live", key);
@@ -177,16 +179,18 @@ function initLivePreview() {
   if (saved === "gh") {
     current = "gh";
     frame.src = LIVE_URLS.gh;
-    fallbackLink.href = LIVE_URLS.gh;
+    if (fallbackLink) fallbackLink.href = LIVE_URLS.gh;
+    if (openFull) openFull.href = LIVE_URLS.gh;
     btnHf.classList.remove("active");
     btnGh.classList.add("active");
   } else {
     frame.src = LIVE_URLS.hf;
-    fallbackLink.href = LIVE_URLS.hf;
+    if (fallbackLink) fallbackLink.href = LIVE_URLS.hf;
+    if (openFull) openFull.href = LIVE_URLS.hf;
   }
 
   frame.addEventListener("load", () => {
-    fallback.classList.remove("show");
+    if (fallback) fallback.classList.remove("show");
     wrap.classList.remove("switching");
     if (loader) loader.classList.remove("show");
   });
