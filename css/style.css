@@ -272,60 +272,6 @@ body {
   opacity: 0.92;
 }
 
-.links-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
-  width: 100%;
-  max-width: 520px;
-}
-
-.link-card {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 1rem 1.15rem;
-  text-decoration: none;
-  color: inherit;
-  transition: transform 0.3s ease, border-color 0.3s ease;
-  min-height: 64px;
-}
-
-.link-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255,255,255,0.28);
-}
-
-.link-favicon {
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  border-radius: 4px;
-  object-fit: contain;
-}
-
-.link-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-}
-
-.link-name {
-  font-family: var(--font-en);
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.link-desc {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .live-section {
   width: 100%;
   max-width: 860px;
@@ -348,13 +294,6 @@ body {
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--text-primary);
-}
-
-.live-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  flex-wrap: wrap;
 }
 
 .live-switch {
@@ -395,29 +334,10 @@ body {
   box-shadow: 0 2px 12px rgba(125,211,252,0.15);
 }
 
-.open-full-btn {
-  font-family: var(--font-cn);
-  font-size: 0.78rem;
-  font-weight: 400;
-  color: var(--accent);
-  text-decoration: none;
-  padding: 0.4rem 0.85rem;
-  border-radius: 999px;
-  border: 1px solid rgba(125, 211, 252, 0.35);
-  background: var(--accent-soft);
-  transition: all 0.25s ease;
-  white-space: nowrap;
-}
-
-.open-full-btn:hover {
-  background: rgba(125, 211, 252, 0.28);
-  border-color: var(--accent);
-}
-
 .live-frame-wrap {
   position: relative;
   width: 100%;
-  height: min(580px, 68vh);
+  height: min(520px, 62vh);
   overflow: hidden;
   padding: 0;
   transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
@@ -496,14 +416,6 @@ body {
   display: flex;
 }
 
-.live-tip {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  text-align: center;
-  margin-top: 0.15rem;
-  font-weight: 300;
-}
-
 .footer {
   display: flex;
   align-items: center;
@@ -514,7 +426,7 @@ body {
   padding-bottom: 0.5rem;
 }
 
-.link-btn {
+.link, .link-btn {
   font-family: var(--font-en);
   font-size: 0.88rem;
   font-weight: 400;
@@ -529,7 +441,7 @@ body {
   position: relative;
 }
 
-.link-btn::after {
+.link::after, .link-btn::after {
   content: "";
   position: absolute;
   left: 0;
@@ -540,12 +452,17 @@ body {
   transition: width 0.3s ease;
 }
 
-.link-btn:hover {
+.link:hover, .link-btn:hover {
   color: var(--accent);
 }
 
-.link-btn:hover::after {
+.link:hover::after, .link-btn:hover::after {
   width: 100%;
+}
+
+.dot {
+  color: var(--text-muted);
+  font-size: 0.65rem;
 }
 
 .theme-toggle {
@@ -596,22 +513,13 @@ body {
     padding: 1.6rem 1rem calc(2rem + var(--safe-bottom));
     gap: 1.25rem;
   }
-  .links-section {
-    grid-template-columns: 1fr;
-    max-width: 340px;
-  }
   .live-frame-wrap {
-    height: min(460px, 58vh);
+    height: min(420px, 55vh);
   }
   .live-header {
     flex-direction: column;
     align-items: stretch;
     gap: 0.7rem;
-  }
-  .live-actions {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
   }
   .live-switch {
     width: 100%;
@@ -623,10 +531,6 @@ body {
     padding: 0.55rem 0.8rem;
     min-height: 42px;
   }
-  .open-full-btn {
-    text-align: center;
-    padding: 0.55rem;
-  }
   .quote-box {
     padding: 1.25rem 1.2rem;
   }
@@ -636,10 +540,6 @@ body {
     top: max(0.9rem, env(safe-area-inset-top));
     right: 0.9rem;
   }
-  .live-tip {
-    font-size: 0.68rem;
-    padding: 0 0.5rem;
-  }
 }
 
 @media (max-width: 380px) {
@@ -648,5 +548,143 @@ body {
   }
   .extra-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 900px) {
+  .info-grid {
+    max-width: 640px;
+  }
+}
+
+.links-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 520px;
+}
+
+.link-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1.15rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+  min-height: 64px;
+}
+
+.link-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,255,255,0.28);
+}
+
+
+.gh-icon-light {
+  display: none;
+}
+.gh-icon-dark {
+  display: block;
+}
+[data-theme="light"] .gh-icon-dark {
+  display: none;
+}
+[data-theme="light"] .gh-icon-light {
+  display: block;
+}
+
+.link-favicon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.link-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.link-name {
+  font-family: var(--font-en);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.link-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.live-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.open-full-btn {
+  font-family: var(--font-cn);
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  background: var(--accent-soft);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.open-full-btn:hover {
+  background: rgba(125, 211, 252, 0.28);
+  border-color: var(--accent);
+}
+
+.live-tip {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 0.15rem;
+  font-weight: 300;
+}
+
+.live-frame-wrap {
+  height: min(580px, 68vh);
+}
+
+@media (max-width: 720px) {
+  .links-section {
+    grid-template-columns: 1fr;
+    max-width: 340px;
+  }
+  .live-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .live-switch {
+    width: 100%;
+  }
+  .open-full-btn {
+    text-align: center;
+    padding: 0.55rem;
+  }
+  .live-frame-wrap {
+    height: min(460px, 58vh);
+  }
+  .live-tip {
+    font-size: 0.68rem;
+    padding: 0 0.5rem;
   }
 }
