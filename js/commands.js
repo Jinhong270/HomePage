@@ -129,25 +129,21 @@
       return;
     }
     if (!choice) {
-      await ctx.printLine("Theme choice: " + api.choice);
-      await ctx.printLine("Resolved: " + api.theme);
+      await ctx.printLine("Theme: " + api.theme + " (" + (api.theme === "dark" ? "NIGHT" : "DAY") + ")");
       await ctx.printLine("");
-      await ctx.printLine("system   follow this device");
       await ctx.printLine("light    warm paper");
       await ctx.printLine("dark     phosphor lab");
       await ctx.printLine("");
-      await ctx.printLine("Usage: /theme system | light | dark | next");
+      await ctx.printLine("Usage: /theme light | dark | next");
       return;
     }
-    if (choice === "auto") choice = "system";
     if (choice === "next") api.cycle();
-    else if (choice === "system" || choice === "light" || choice === "dark") api.set(choice);
+    else if (choice === "light" || choice === "dark") api.set(choice);
     else {
-      await ctx.printLine("Unknown theme \"" + clean(args[0], 40) + "\". Use system, light, dark, or next.", "warn");
+      await ctx.printLine("Unknown theme \"" + clean(args[0], 40) + "\". Use light, dark, or next.", "warn");
       return;
     }
-    await ctx.printLine("Theme choice: " + api.choice);
-    await ctx.printLine("Resolved: " + api.theme);
+    await ctx.printLine("Theme: " + api.theme + " (" + (api.theme === "dark" ? "NIGHT" : "DAY") + ")");
   }
 
   async function gameCmd(args, ctx) {
@@ -363,7 +359,7 @@
       "user      guest",
       "locale    en-US",
       "shell     simulated",
-      "theme     " + (theme ? theme.choice + " -> " + theme.theme : "unknown"),
+      "theme     " + (theme ? theme.theme : "unknown"),
       "screen    " + window.innerWidth + "x" + window.innerHeight,
       "session   " + minutes + " min",
       "browser   " + agent
@@ -498,7 +494,7 @@
 
   var commands = [
     { name: "help", group: "Session", summary: "List commands", usage: "/help", detail: "Groups the commands this guest shell can print.", run: help },
-    { name: "theme", group: "Session", summary: "Switch light, dark, or system", usage: "/theme [system|light|dark|next]", detail: "The same choice as the button at the top right. system follows this device.", run: themeCmd },
+    { name: "theme", group: "Session", summary: "Switch light or dark", usage: "/theme [light|dark|next]", detail: "The same choice as the button at the top right. A first visit uses this device's light or dark setting.", run: themeCmd },
     { name: "clear", group: "Session", summary: "Clear the screen", usage: "/clear", detail: "Ctrl+L does the same.", run: clearCmd },
     { name: "history", group: "Session", summary: "Show commands from this visit", usage: "/history", detail: "Only this page session. Nothing is stored on a server.", run: historyCmd },
     { name: "lang", group: "Session", summary: "Show the terminal language", usage: "/lang", detail: "English (United States). There is no language switch.", run: langCmd },

@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>
     (function () {
-      var saved = "system";
-      try { saved = localStorage.getItem("jh270-theme") || "system"; } catch (err) {}
+      var saved = "";
+      try { saved = localStorage.getItem("jh270-theme") || ""; } catch (err) {}
       var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       var theme = saved === "light" || saved === "dark" ? saved : (dark ? "dark" : "light");
       var root = document.documentElement;
       root.dataset.theme = theme;
-      root.dataset.themeChoice = saved === "light" || saved === "dark" ? saved : "system";
+      root.dataset.themeChoice = theme;
     })();
   </script>
   <title>Terminal — Jinhong270</title>
@@ -37,8 +37,8 @@
       <p class="term-id">guest@jh270.com</p>
       <span class="term-spacer"></span>
       <a class="bar-btn" href="../">Home</a>
-      <button type="button" class="theme-btn" data-theme-toggle aria-label="Theme follows the system. Activate to switch.">
-        <span data-theme-label>SYS</span>
+      <button type="button" class="theme-btn" data-theme-toggle aria-label="Switch between day and night.">
+        <span data-theme-label></span>
       </button>
     </header>
     <div id="screen" class="screen" role="log"></div>

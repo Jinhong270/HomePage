@@ -158,7 +158,15 @@ a:hover { color: var(--accent); }
   letter-spacing: 0.14em;
   padding: 0.45rem 0.7rem;
   cursor: pointer;
-  min-width: 4.6rem;
+  min-width: 5.4rem;
+}
+
+.theme-btn [data-theme-label]::before {
+  content: "DAY";
+}
+
+:root[data-theme="dark"] .theme-btn [data-theme-label]::before {
+  content: "NIGHT";
 }
 
 .theme-btn:hover { border-color: var(--accent); }

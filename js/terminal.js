@@ -27,7 +27,7 @@
 
   function paintThemeStatus() {
     if (!themeLabel || !window.JH270Theme) return;
-    themeLabel.textContent = "theme " + window.JH270Theme.choice + " (" + window.JH270Theme.theme + ")";
+    themeLabel.textContent = "theme " + window.JH270Theme.theme;
   }
 
   function updateQueue() {
@@ -325,10 +325,9 @@
     var options = [];
     if (name === "theme") {
       options = [
-        ["system", "follow this device"],
         ["light", "warm paper"],
         ["dark", "phosphor lab"],
-        ["next", "cycle the choice"]
+        ["next", "the other one"]
       ];
     } else if (name === "game") {
       options = [
@@ -564,7 +563,7 @@
     "  /about     who Jinhong270 is",
     "  /repos     public GitHub repositories",
     "  /game      2048, Snake, Tetris",
-    "  /theme     light, dark, or system",
+    "  /theme     light or dark",
     ""
   ];
 

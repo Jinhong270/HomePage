@@ -1,67 +1,59 @@
 (function () {
   var KEY = "jh270-theme";
   var root = document.documentElement;
-  var choice = "system";
 
   function systemTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
-  function readChoice() {
+  function savedChoice() {
     try {
       var saved = localStorage.getItem(KEY);
-      if (saved === "light" || saved === "dark" || saved === "system") return saved;
+      if (saved === "light" || saved === "dark") return saved;
+      if (saved) localStorage.removeItem(KEY);
     } catch (err) {}
-    return choice;
+    return "";
   }
 
   function writeChoice(next) {
-    choice = next;
     try {
       localStorage.setItem(KEY, next);
     } catch (err) {}
   }
 
-  function labelFor(next) {
-    if (next === "light") return "DAY";
-    if (next === "dark") return "NIGHT";
-    return "SYS";
+  function nameFor(theme) {
+    if (theme === "dark") return "Theme is dark. Activate to switch to light.";
+    return "Theme is light. Activate to switch to dark.";
   }
 
-  function nameFor(next) {
-    if (next === "light") return "Theme is light. Activate to switch.";
-    if (next === "dark") return "Theme is dark. Activate to switch.";
-    return "Theme follows the system. Activate to switch.";
-  }
-
-  function paint(next) {
-    var mode = next === "light" || next === "dark" ? next : "system";
-    var resolved = mode === "system" ? systemTheme() : mode;
-    writeChoice(mode);
-    root.dataset.theme = resolved;
+  function apply(theme, lock) {
+    var mode = theme === "dark" ? "dark" : "light";
+    if (lock) writeChoice(mode);
+    root.dataset.theme = mode;
     root.dataset.themeChoice = mode;
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", resolved === "light" ? "#f4efe4" : "#080a07");
+    if (meta) meta.setAttribute("content", mode === "light" ? "#f4efe4" : "#080a07");
     var buttons = document.querySelectorAll("[data-theme-toggle]");
     for (var i = 0; i < buttons.length; i++) {
-      var text = buttons[i].querySelector("[data-theme-label]");
-      if (text) text.textContent = labelFor(mode);
       buttons[i].setAttribute("aria-label", nameFor(mode));
       buttons[i].title = nameFor(mode);
     }
-    window.dispatchEvent(new CustomEvent("jh270-theme", { detail: { choice: mode, theme: resolved } }));
+    window.dispatchEvent(new CustomEvent("jh270-theme", { detail: { choice: mode, theme: mode } }));
+  }
+
+  function paint(next) {
+    apply(next === "dark" ? "dark" : "light", true);
   }
 
   function cycle() {
-    var order = ["system", "light", "dark"];
-    var index = order.indexOf(readChoice());
-    paint(order[(index + 1) % order.length]);
+    var current = savedChoice() || systemTheme();
+    paint(current === "dark" ? "light" : "dark");
   }
 
-  paint(readChoice());
+  apply(savedChoice() || systemTheme(), false);
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-    if (readChoice() === "system") paint("system");
+    if (!savedChoice()) apply(systemTheme(), false);
   });
 
   document.addEventListener("click", function (event) {
@@ -72,10 +64,10 @@
 
   window.JH270Theme = {
     get choice() {
-      return readChoice();
+      return savedChoice() || systemTheme();
     },
     get theme() {
-      return root.dataset.theme || systemTheme();
+      return root.dataset.theme === "dark" ? "dark" : "light";
     },
     set: paint,
     cycle: cycle
