@@ -23,6 +23,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://jh270.com/">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://api.github.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -127,9 +128,12 @@
         </div>
         <p>Numbers and repositories are requested by your browser from GitHub. Nothing is fetched by a server for this page.</p>
       </div>
-      <div id="github-mount" class="github-mount">
-        <p class="note">The profile reader is not on this copy yet. The public account is still at <a href="https://github.com/Jinhong270">github.com/Jinhong270</a>.</p>
+      <div id="github-mount" class="github-mount" aria-busy="true">
+        <p class="note">Reading the public profile in this browser…</p>
       </div>
+      <noscript>
+        <p class="note">JavaScript is off, so this page cannot ask GitHub. The account is <a href="https://github.com/Jinhong270">github.com/Jinhong270</a>.</p>
+      </noscript>
     </section>
   </main>
   <footer class="statusline">
@@ -141,6 +145,8 @@
     </div>
   </footer>
   <script src="js/theme.js"></script>
+  <script src="js/github-data.js"></script>
+  <script src="js/github-ui.js"></script>
   <script src="js/home.js"></script>
 </body>
 </html>

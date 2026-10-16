@@ -423,6 +423,8 @@ kbd {
   line-height: 1.1;
 }
 
+.stat-wide b { font-size: 1.02rem; line-height: 1.35; }
+
 .stat span { color: var(--faint); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; }
 
 .profile-row {
@@ -546,10 +548,15 @@ kbd {
   .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
+@media (max-width: 1040px) {
+  .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 @media (max-width: 800px) {
   .top-inner { flex-wrap: wrap; padding: 0.55rem 0; }
   .nav { order: 3; width: 100%; margin: 0 0 0.55rem; }
-  .stat-grid, .handles, .repo-grid { grid-template-columns: 1fr; }
+  .handles, .repo-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .section-head { flex-direction: column; align-items: start; }
   .statusline-inner { flex-wrap: wrap; padding: 0.4rem 0; }
 }
