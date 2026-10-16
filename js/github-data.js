@@ -44,6 +44,10 @@
     });
   }
 
+  function peek() {
+    return cached;
+  }
+
   function loadProfile() {
     if (cached) return Promise.resolve(cached);
     if (pending) return pending;
@@ -100,6 +104,7 @@
   window.JH270GitHub = {
     USER: USER,
     blurb: blurb,
+    peek: peek,
     loadProfile: loadProfile,
     loadRepo: loadRepo,
     relativeTime: relativeTime,

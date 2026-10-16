@@ -47,6 +47,7 @@
       var text = buttons[i].querySelector("[data-theme-label]");
       if (text) text.textContent = labelFor(mode);
       buttons[i].setAttribute("aria-label", nameFor(mode));
+      buttons[i].title = nameFor(mode);
     }
     window.dispatchEvent(new CustomEvent("jh270-theme", { detail: { choice: mode, theme: resolved } }));
   }

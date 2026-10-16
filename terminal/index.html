@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (function () {
+      var saved = "system";
+      try { saved = localStorage.getItem("jh270-theme") || "system"; } catch (err) {}
+      var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = saved === "light" || saved === "dark" ? saved : (dark ? "dark" : "light");
+      var root = document.documentElement;
+      root.dataset.theme = theme;
+      root.dataset.themeChoice = saved === "light" || saved === "dark" ? saved : "system";
+    })();
+  </script>
+  <title>Terminal — Jinhong270</title>
+  <meta name="description" content="Guest terminal for jh270.com. Commands are printed in English. /game embeds 2048, Snake, and Tetris.">
+  <meta name="theme-color" content="#080a07">
+  <link rel="canonical" href="https://jh270.com/terminal/">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://api.github.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/site.css">
+  <link rel="stylesheet" href="../css/terminal.css">
+</head>
+<body class="page-terminal">
+  <a class="skip" href="#cmd">Skip to the prompt</a>
+  <main class="term" id="content">
+    <header class="term-bar">
+      <a class="brand" href="../">
+        <span class="brand-mark">JH</span>
+        <span>TERMINAL<small>JH270.COM</small></span>
+      </a>
+      <p class="term-id">guest@jh270.com</p>
+      <span class="term-spacer"></span>
+      <a class="bar-btn" href="../">Home</a>
+      <button type="button" class="theme-btn" data-theme-toggle aria-label="Theme follows the system. Activate to switch.">
+        <span data-theme-label>SYS</span>
+      </button>
+    </header>
+    <div id="screen" class="screen" role="log"></div>
+    <div id="stage" class="stage" hidden>
+      <div class="stage-bar">
+        <span id="stage-title">Game</span>
+        <button type="button" id="stage-full">Full screen</button>
+        <button type="button" id="stage-close">Close</button>
+      </div>
+      <iframe id="stage-frame" title="Game" tabindex="0" allow="fullscreen; autoplay; gamepad" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    <div id="menu" class="menu" role="listbox" aria-label="Commands" hidden></div>
+    <form id="composer" class="composer" autocomplete="off">
+      <label id="prompt-label" for="cmd">guest@jh270.com:~$</label>
+      <input id="cmd" name="command" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" placeholder="Type /help" aria-label="Command" aria-autocomplete="list" aria-controls="menu" aria-expanded="false">
+    </form>
+    <footer class="term-status">
+      <span>guest@jh270.com</span>
+      <span>en-US</span>
+      <span id="term-theme">theme</span>
+      <span>Esc finishes · Ctrl+C stops · Ctrl+L clears</span>
+      <span id="queue-count"></span>
+    </footer>
+  </main>
+  <script src="../js/theme.js"></script>
+  <script src="../js/github-data.js"></script>
+  <script src="../js/commands.js"></script>
+  <script src="../js/terminal.js"></script>
+</body>
+</html>

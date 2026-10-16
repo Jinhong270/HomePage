@@ -405,6 +405,9 @@ kbd {
   font-size: 0.85rem;
 }
 
+.keys a { text-decoration: none; }
+.keys a:hover kbd { border-color: var(--accent); color: var(--text); }
+
 .github-mount { padding: 1rem; min-height: 8rem; }
 
 .stat-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 1rem 0; }
