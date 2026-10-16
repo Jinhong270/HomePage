@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (function () {
+      var saved = "system";
+      try { saved = localStorage.getItem("jh270-theme") || "system"; } catch (err) {}
+      var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var theme = saved === "light" || saved === "dark" ? saved : (dark ? "dark" : "light");
+      var root = document.documentElement;
+      root.dataset.theme = theme;
+      root.dataset.themeChoice = saved === "light" || saved === "dark" ? saved : "system";
+    })();
+  </script>
+  <title>Jinhong270 — jh270.com</title>
+  <meta name="description" content="Homepage of Jinhong270. An Android toolbox, arcade games, public repositories, and a guest terminal.">
+  <meta name="theme-color" content="#080a07">
+  <link rel="canonical" href="https://jh270.com/">
+  <meta property="og:title" content="Jinhong270">
+  <meta property="og:description" content="Retro homepage and guest terminal for jh270.com.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jh270.com/">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="./">
+        <span class="brand-mark">JH</span>
+        <span>JH270<small>JINHONG270</small></span>
+      </a>
+      <nav class="nav" aria-label="Page">
+        <a href="#work">Work</a>
+        <a href="#github">GitHub</a>
+        <a href="terminal/">Terminal</a>
+      </nav>
+      <button type="button" class="theme-btn" data-theme-toggle aria-label="Theme follows the system. Activate to switch.">
+        <span data-theme-label>SYS</span>
+      </button>
+    </div>
+  </header>
+  <main id="content" class="wrap">
+    <section class="hero">
+      <div>
+        <p class="kicker">Personal system · English (United States)</p>
+        <h1>Jinhong270</h1>
+        <hr class="rule">
+        <p class="lede">Same name on GitHub, X, and Hugging Face. This is the front door: the work, a live look at the public repositories, and a guest terminal.</p>
+        <p class="now"><span class="tag">Now</span> Building <a href="https://github.com/Jinhong270/AndroidToolBox">AndroidToolBox</a>, an Android SSH toolbox for browsing remote files and opening a shell. More tools are planned.</p>
+        <div class="actions">
+          <a class="btn btn-accent" href="terminal/">Open terminal</a>
+        </div>
+        <ul class="handles">
+          <li><a href="https://github.com/Jinhong270"><strong>GitHub</strong><span>@Jinhong270</span></a></li>
+          <li><a href="https://x.com/Jinhong270"><strong>X</strong><span>@Jinhong270</span></a></li>
+          <li><a href="https://huggingface.co/Jinhong270"><strong>Hugging Face</strong><span>@Jinhong270</span></a></li>
+        </ul>
+      </div>
+      <aside class="monitor" aria-label="Boot log">
+        <div class="monitor-bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>guest@jh270.com</span>
+        </div>
+        <pre id="boot" class="boot"></pre>
+      </aside>
+    </section>
+
+    <section id="work" class="section">
+      <div class="section-head">
+        <div>
+          <p class="kicker">01 — Work</p>
+          <h2>On the bench</h2>
+        </div>
+        <p>A few repositories, described from what they actually do.</p>
+      </div>
+      <article class="feature">
+        <div class="feature-top">
+          <span class="tag">Building</span>
+          <span>Kotlin · Apache-2.0</span>
+        </div>
+        <h3>AndroidToolBox</h3>
+        <p>An Android SSH toolbox for browsing remote files and opening a shell. The toolbox is the active project, and more tools are on the way.</p>
+        <a class="text-link" href="https://github.com/Jinhong270/AndroidToolBox">github.com/Jinhong270/AndroidToolBox</a>
+      </article>
+      <div class="grid-3">
+        <article class="card">
+          <h3>Arcades</h3>
+          <p>Snake, 2048, and Tetris. From the terminal, <kbd>/game</kbd> embeds the cabinet on this site.</p>
+          <ul>
+            <li><a href="https://github.com/Jinhong270/Snake">Snake</a></li>
+            <li><a href="https://github.com/Jinhong270/2048">2048</a></li>
+            <li><a href="https://github.com/Jinhong270/Tetris">Tetris</a></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Bilibili for AstrBot</h3>
+          <p>A chat plugin that reads a Bilibili link or a search, then downloads the video.</p>
+          <a class="text-link" href="https://github.com/Jinhong270/astrbot_plugin_hfapibilibili">astrbot_plugin_hfapibilibili</a>
+        </article>
+        <article class="card">
+          <h3>Youdao Xiao P</h3>
+          <p>An AstrBot plugin for Youdao Xiao P: conversation, text to speech, and common questions.</p>
+          <a class="text-link" href="https://github.com/Jinhong270/astrbot_plugin_youdaolittlep">astrbot_plugin_youdaolittlep</a>
+        </article>
+      </div>
+      <p class="keys" aria-label="Terminal commands">
+        <kbd>/help</kbd>
+        <kbd>/about</kbd>
+        <kbd>/repos</kbd>
+        <kbd>/game</kbd>
+        <kbd>/theme</kbd>
+      </p>
+    </section>
+
+    <section id="github" class="section">
+      <div class="section-head">
+        <div>
+          <p class="kicker">02 — GitHub</p>
+          <h2>Public record</h2>
+        </div>
+        <p>Numbers and repositories are requested by your browser from GitHub. Nothing is fetched by a server for this page.</p>
+      </div>
+      <div id="github-mount" class="github-mount">
+        <p class="note">The profile reader is not on this copy yet. The public account is still at <a href="https://github.com/Jinhong270">github.com/Jinhong270</a>.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="statusline">
+    <div class="statusline-inner">
+      <span>jh270.com</span>
+      <span>guest@jh270.com</span>
+      <span>en-US</span>
+      <span id="clock">--:--:--</span>
+    </div>
+  </footer>
+  <script src="js/theme.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>
