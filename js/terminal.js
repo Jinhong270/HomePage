@@ -331,9 +331,10 @@
     var JH_options = [];
     if (JH_name === "theme") {
       JH_options = [
+        ["system", "follow this device"],
         ["light", "warm paper"],
         ["dark", "phosphor lab"],
-        ["next", "the other one"]
+        ["next", "cycle the choice"]
       ];
     } else if (JH_name === "game") {
       JH_options = [
