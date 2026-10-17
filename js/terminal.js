@@ -1,563 +1,570 @@
 (function () {
-  var screen = document.getElementById("screen");
-  var stage = document.getElementById("stage");
-  var stageTitle = document.getElementById("stage-title");
-  var frame = document.getElementById("stage-frame");
-  var menu = document.getElementById("menu");
-  var form = document.getElementById("composer");
-  var input = document.getElementById("cmd");
-  var queueLabel = document.getElementById("queue-count");
-  var themeLabel = document.getElementById("term-theme");
-  var registry = window.JH270Commands;
-  if (!screen || !input || !form || !registry) return;
+  var JH_screen = document.getElementById("screen");
+  var JH_stage = document.getElementById("stage");
+  var JH_stageTitle = document.getElementById("stage-title");
+  var JH_frame = document.getElementById("stage-frame");
+  var JH_menu = document.getElementById("menu");
+  var JH_form = document.getElementById("composer");
+  var JH_input = document.getElementById("cmd");
+  var JH_queueLabel = document.getElementById("queue-count");
+  var JH_themeLabel = document.getElementById("term-theme");
+  var JH_registry = window.JH270Commands;
+  if (!JH_screen || !JH_input || !JH_form || !JH_registry) return;
 
-  var startedAt = Date.now();
-  var epoch = 0;
-  var canceled = false;
-  var skip = false;
-  var stopMode = "";
-  var booting = true;
-  var pumping = false;
-  var queue = [];
-  var commandHistory = [];
-  var historyIndex = 0;
-  var suggestions = [];
-  var selected = 0;
-  var pinned = true;
+  var JH_startedAt = Date.now();
+  var JH_epoch = 0;
+  var JH_canceled = false;
+  var JH_skip = false;
+  var JH_stopMode = "";
+  var JH_booting = true;
+  var JH_pumping = false;
+  var JH_queue = [];
+  var JH_commandHistory = [];
+  var JH_historyIndex = 0;
+  var JH_suggestions = [];
+  var JH_selected = 0;
+  var JH_pinned = true;
 
-  function paintThemeStatus() {
-    if (!themeLabel || !window.JH270Theme) return;
-    themeLabel.textContent = "theme " + window.JH270Theme.theme;
+  function JH_paintThemeStatus() {
+    if (!JH_themeLabel || !window.JH270Theme) return;
+    JH_themeLabel.textContent = "theme " + window.JH270Theme.theme;
   }
 
-  function updateQueue() {
-    if (!queueLabel) return;
-    queueLabel.textContent = queue.length ? queue.length + " waiting" : "";
+  function JH_updateQueue() {
+    if (!JH_queueLabel) return;
+    JH_queueLabel.textContent = JH_queue.length ? JH_queue.length + " waiting" : "";
   }
 
-  function stick(force) {
-    if (!screen || screen.hidden) return;
-    if (force || pinned) screen.scrollTop = screen.scrollHeight;
+  function JH_stick(JH_force) {
+    if (!JH_screen || JH_screen.hidden) return;
+    if (JH_force || JH_pinned) JH_screen.scrollTop = JH_screen.scrollHeight;
   }
 
-  screen.addEventListener("scroll", function () {
-    var gap = screen.scrollHeight - screen.scrollTop - screen.clientHeight;
-    pinned = gap < 48;
+  JH_screen.addEventListener("scroll", function () {
+    var JH_gap = JH_screen.scrollHeight - JH_screen.scrollTop - JH_screen.clientHeight;
+    JH_pinned = JH_gap < 48;
   });
 
-  function typeInto(node, text, token) {
-    node.classList.add("typing");
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    function finish() {
-      node.classList.remove("typing");
-      stick();
+  function JH_typeInto(JH_node, JH_text, JH_token) {
+    JH_node.classList.add("typing");
+    var JH_reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function JH_finish() {
+      JH_node.classList.remove("typing");
+      JH_stick();
     }
-    if (!text || reduce || skip || canceled) {
-      if (token === epoch && text) node.textContent += text;
-      finish();
+    if (!JH_text || JH_reduce || JH_skip || JH_canceled) {
+      if (JH_token === JH_epoch && JH_text) JH_node.textContent += JH_text;
+      JH_finish();
       return Promise.resolve();
     }
-    return new Promise(function (resolve) {
-      var i = 0;
-      var step = function () {
-        if (token !== epoch) {
-          finish();
-          resolve();
+    return new Promise(function (JH_resolve) {
+      var JH_i = 0;
+      var JH_step = function () {
+        if (JH_token !== JH_epoch) {
+          JH_finish();
+          JH_resolve();
           return;
         }
-        if (skip || canceled) {
-          node.textContent += text.slice(i);
-          finish();
-          resolve();
+        if (JH_skip || JH_canceled) {
+          JH_node.textContent += JH_text.slice(JH_i);
+          JH_finish();
+          JH_resolve();
           return;
         }
-        var ch = text.charAt(i);
-        node.textContent += ch;
-        i += 1;
-        stick();
-        if (i >= text.length) {
-          finish();
-          resolve();
+        var JH_ch = JH_text.charAt(JH_i);
+        JH_node.textContent += JH_ch;
+        JH_i += 1;
+        JH_stick();
+        if (JH_i >= JH_text.length) {
+          JH_finish();
+          JH_resolve();
           return;
         }
-        window.setTimeout(step, ch === "\n" ? 18 : 8);
+        window.setTimeout(JH_step, JH_ch === "\n" ? 18 : 8);
       };
-      step();
+      JH_step();
     });
   }
 
-  function printLine(text, tone, force) {
-    if (canceled && !force) return Promise.resolve();
-    var token = epoch;
-    var node = document.createElement("p");
-    node.className = "line" + (tone ? " line-" + tone : "");
-    if (!text) {
-      node.classList.add("line-gap");
-      screen.appendChild(node);
+  function JH_printLine(JH_text, JH_tone, JH_force) {
+    if (JH_canceled && !JH_force) return Promise.resolve();
+    var JH_token = JH_epoch;
+    var JH_node = document.createElement("p");
+    JH_node.className = "line" + (JH_tone ? " line-" + JH_tone : "");
+    if (!JH_text) {
+      JH_node.classList.add("line-gap");
+      JH_screen.appendChild(JH_node);
       return Promise.resolve();
     }
-    screen.appendChild(node);
-    return typeInto(node, text, token);
+    JH_screen.appendChild(JH_node);
+    return JH_typeInto(JH_node, JH_text, JH_token);
   }
 
-  function printPre(text) {
-    if (canceled) return Promise.resolve();
-    var token = epoch;
-    var node = document.createElement("pre");
-    node.className = "pre";
-    screen.appendChild(node);
-    return typeInto(node, text, token);
+  function JH_printPre(JH_text) {
+    if (JH_canceled) return Promise.resolve();
+    var JH_token = JH_epoch;
+    var JH_node = document.createElement("pre");
+    JH_node.className = "pre";
+    JH_screen.appendChild(JH_node);
+    return JH_typeInto(JH_node, JH_text, JH_token);
   }
 
-  function linkLine(href, label) {
-    if (canceled) return;
-    var safe = window.JH270GitHub ? window.JH270GitHub.safeHttp(href) : "";
-    var node = document.createElement("p");
-    node.className = "line";
-    if (!safe) {
-      node.textContent = label || href;
+  function JH_linkLine(JH_href, JH_label) {
+    if (JH_canceled) return;
+    var JH_safe = window.JH270GitHub ? window.JH270GitHub.safeHttp(JH_href) : "";
+    var JH_node = document.createElement("p");
+    JH_node.className = "line";
+    if (!JH_safe) {
+      JH_node.textContent = JH_label || JH_href;
     } else {
-      var anchor = document.createElement("a");
-      anchor.href = safe;
-      anchor.target = "_blank";
-      anchor.rel = "noopener noreferrer";
-      anchor.textContent = label || safe;
-      node.appendChild(anchor);
+      var JH_anchor = document.createElement("a");
+      JH_anchor.href = JH_safe;
+      JH_anchor.target = "_blank";
+      JH_anchor.rel = "noopener noreferrer";
+      JH_anchor.textContent = JH_label || JH_safe;
+      JH_node.appendChild(JH_anchor);
     }
-    screen.appendChild(node);
-    stick();
+    JH_screen.appendChild(JH_node);
+    JH_stick();
   }
 
-  function choiceList(items) {
-    if (canceled) return;
-    var wrap = document.createElement("div");
-    wrap.className = "choices";
-    items.forEach(function (item) {
-      var button = document.createElement("button");
-      button.type = "button";
-      button.className = "choice";
-      button.setAttribute("data-run", item.run);
-      var title = document.createElement("strong");
-      title.textContent = item.title;
-      button.appendChild(title);
-      if (item.detail) {
-        var detail = document.createElement("small");
-        detail.textContent = item.detail;
-        button.appendChild(detail);
+  function JH_choiceList(JH_items) {
+    if (JH_canceled) return;
+    var JH_wrap = document.createElement("div");
+    JH_wrap.className = "choices";
+    JH_items.forEach(function (JH_item) {
+      var JH_button = document.createElement("button");
+      JH_button.type = "button";
+      JH_button.className = "choice";
+      JH_button.setAttribute("data-run", JH_item.run);
+      var JH_title = document.createElement("strong");
+      JH_title.textContent = JH_item.title;
+      JH_button.appendChild(JH_title);
+      if (JH_item.detail) {
+        var JH_detail = document.createElement("small");
+        JH_detail.textContent = JH_item.detail;
+        JH_button.appendChild(JH_detail);
       }
-      wrap.appendChild(button);
+      JH_wrap.appendChild(JH_button);
     });
-    screen.appendChild(wrap);
-    stick(true);
+    JH_screen.appendChild(JH_wrap);
+    JH_stick(true);
   }
 
-  function closeStage(silent) {
-    if (!stage || stage.hidden) return;
-    var title = stageTitle ? stageTitle.textContent : "game";
-    stage.hidden = true;
-    screen.hidden = false;
-    if (frame) frame.src = "about:blank";
-    if (!silent) {
-      var node = document.createElement("p");
-      node.className = "line line-dim";
-      node.textContent = "Closed " + title + ".";
-      screen.appendChild(node);
-      stick(true);
+  function JH_closeStage(JH_silent) {
+    if (!JH_stage || JH_stage.hidden) return;
+    var JH_title = JH_stageTitle ? JH_stageTitle.textContent : "game";
+    JH_stage.hidden = true;
+    JH_screen.hidden = false;
+    if (JH_frame) JH_frame.src = "about:blank";
+    if (!JH_silent) {
+      var JH_node = document.createElement("p");
+      JH_node.className = "line line-dim";
+      JH_node.textContent = "Closed " + JH_title + ".";
+      JH_screen.appendChild(JH_node);
+      JH_stick(true);
     }
-    input.focus();
+    JH_input.focus();
   }
 
-  function launch(id) {
-    if (canceled || !stage || !frame) return;
-    var game = registry.games[id];
-    if (!game) return;
-    screen.hidden = true;
-    stage.hidden = false;
-    if (stageTitle) stageTitle.textContent = game.title;
-    frame.title = game.title;
-    frame.src = game.url;
+  function JH_launch(JH_id) {
+    if (JH_canceled || !JH_stage || !JH_frame) return;
+    var JH_game = JH_registry.games[JH_id];
+    if (!JH_game) return;
+    JH_screen.hidden = true;
+    JH_stage.hidden = false;
+    if (JH_stageTitle) JH_stageTitle.textContent = JH_game.title;
+    JH_frame.title = JH_game.title;
+    JH_frame.src = JH_game.url;
     window.setTimeout(function () {
       try {
-        if (frame.contentWindow) frame.contentWindow.focus();
-        else frame.focus();
-      } catch (err) {
-        frame.focus();
+        if (JH_frame.contentWindow) JH_frame.contentWindow.focus();
+        else JH_frame.focus();
+      } catch (JH_err) {
+        JH_frame.focus();
       }
     }, 250);
   }
 
-  function clearScreen() {
-    epoch += 1;
-    screen.replaceChildren();
+  function JH_clearScreen() {
+    JH_epoch += 1;
+    JH_screen.replaceChildren();
   }
 
-  function halt(mode) {
-    canceled = true;
-    skip = true;
-    stopMode = mode;
-    if (mode === "clear") {
-      closeStage(true);
-      clearScreen();
+  function JH_halt(JH_mode) {
+    JH_canceled = true;
+    JH_skip = true;
+    JH_stopMode = JH_mode;
+    if (JH_mode === "clear") {
+      JH_closeStage(true);
+      JH_clearScreen();
     }
   }
 
-  var ctx = {
-    startedAt: startedAt,
+  var JH_ctx = {
+    startedAt: JH_startedAt,
     github: window.JH270GitHub || null,
     rest: "",
-    stopped: function () { return canceled; },
-    printLine: printLine,
-    printPre: printPre,
-    link: linkLine,
-    choices: choiceList,
-    launch: launch,
-    clear: clearScreen,
-    history: function () { return commandHistory.slice(); }
+    stopped: function () { return JH_canceled; },
+    printLine: JH_printLine,
+    printPre: JH_printPre,
+    link: JH_linkLine,
+    choices: JH_choiceList,
+    launch: JH_launch,
+    clear: JH_clearScreen,
+    history: function () { return JH_commandHistory.slice(); }
   };
 
-  function parse(raw) {
-    var text = String(raw || "").trim();
-    var parts = text.split(/\s+/);
-    var head = parts[0] || "";
-    var slash = head.charAt(0) === "/";
+  function JH_parse(JH_raw) {
+    var JH_text = String(JH_raw || "").trim();
+    var JH_parts = JH_text.split(/\s+/);
+    var JH_head = JH_parts[0] || "";
+    var JH_slash = JH_head.charAt(0) === "/";
     return {
-      raw: text,
-      slash: slash,
-      name: (slash ? head.slice(1) : head).toLowerCase(),
-      args: parts.slice(1),
-      rest: text.slice(head.length).trim()
+      raw: JH_text,
+      slash: JH_slash,
+      name: (JH_slash ? JH_head.slice(1) : JH_head).toLowerCase(),
+      args: JH_parts.slice(1),
+      rest: JH_text.slice(JH_head.length).trim()
     };
   }
 
-  function echo(raw) {
-    var node = document.createElement("p");
-    node.className = "line line-cmd";
-    var prompt = document.createElement("span");
-    prompt.className = "prompt-echo";
-    prompt.textContent = "guest@jh270.com:~$ ";
-    node.appendChild(prompt);
-    node.appendChild(document.createTextNode(raw));
-    screen.appendChild(node);
-    stick(true);
+  function JH_echo(JH_raw) {
+    var JH_node = document.createElement("p");
+    JH_node.className = "line line-cmd";
+    var JH_prompt = document.createElement("span");
+    JH_prompt.className = "prompt-echo";
+    JH_prompt.textContent = "guest@jh270.com:~$ ";
+    JH_node.appendChild(JH_prompt);
+    JH_node.appendChild(document.createTextNode(JH_raw));
+    JH_screen.appendChild(JH_node);
+    JH_stick(true);
   }
 
-  async function dispatch(raw) {
-    var parsed = parse(raw);
-    if (!parsed.name) return;
-    if (!parsed.slash) {
-      await printLine("jhsh: " + parsed.raw + ": this shell only prints replies. Try /help.", "warn");
+  async function JH_dispatch(JH_raw) {
+    var JH_parsed = JH_parse(JH_raw);
+    if (!JH_parsed.name) return;
+    var JH_cmd = JH_registry.find(JH_parsed.name);
+    if (!JH_parsed.slash) {
+      if (!JH_registry.isBare(JH_parsed.name)) {
+        await JH_printLine("jhsh: " + JH_parsed.raw + ": this shell only prints replies. Try /help.", "warn");
+        return;
+      }
+    } else if (!JH_cmd) {
+      await JH_printLine("/" + JH_parsed.name + ": unknown command. Type /help.", "warn");
       return;
     }
-    var cmd = registry.find(parsed.name);
-    if (!cmd) {
-      await printLine("/" + parsed.name + ": unknown command. Type /help.", "warn");
-      return;
-    }
-    ctx.rest = parsed.rest;
-    await cmd.run(parsed.args, ctx);
+    JH_ctx.rest = JH_parsed.rest;
+    await JH_cmd.run(JH_parsed.args, JH_ctx);
   }
 
-  async function execute(raw) {
-    canceled = false;
-    skip = false;
-    stopMode = "";
-    if (stage && !stage.hidden) closeStage(true);
-    echo(raw);
+  async function JH_execute(JH_raw) {
+    JH_canceled = false;
+    JH_skip = false;
+    JH_stopMode = "";
+    if (JH_stage && !JH_stage.hidden) JH_closeStage(true);
+    JH_echo(JH_raw);
     try {
-      await dispatch(raw);
-    } catch (err) {
-      await printLine((err && err.message) || "The command stopped.", "warn");
+      await JH_dispatch(JH_raw);
+    } catch (JH_err) {
+      await JH_printLine((JH_err && JH_err.message) || "The command stopped.", "warn");
     }
-    if (canceled && stopMode === "ctrlc") await printLine("^C", "warn", true);
-    canceled = false;
-    skip = false;
-    stopMode = "";
-    stick(true);
+    if (JH_canceled && JH_stopMode === "ctrlc") await JH_printLine("^C", "warn", true);
+    JH_canceled = false;
+    JH_skip = false;
+    JH_stopMode = "";
+    JH_stick(true);
   }
 
-  async function pump() {
-    if (pumping) return;
-    pumping = true;
-    while (queue.length && !booting) {
-      var next = queue.shift();
-      updateQueue();
-      await execute(next);
+  async function JH_pump() {
+    if (JH_pumping) return;
+    JH_pumping = true;
+    while (JH_queue.length && !JH_booting) {
+      var JH_next = JH_queue.shift();
+      JH_updateQueue();
+      await JH_execute(JH_next);
     }
-    pumping = false;
-    updateQueue();
+    JH_pumping = false;
+    JH_updateQueue();
   }
 
-  function submit(raw) {
-    var trimmed = String(raw || "").trim();
-    if (!trimmed) return;
-    queue.push(trimmed);
-    updateQueue();
-    if (!booting) pump();
+  function JH_submit(JH_raw) {
+    var JH_trimmed = String(JH_raw || "").trim();
+    if (!JH_trimmed) return;
+    JH_queue.push(JH_trimmed);
+    JH_updateQueue();
+    if (!JH_booting) JH_pump();
   }
 
-  function hideMenu() {
-    if (!menu) return;
-    menu.hidden = true;
-    menu.replaceChildren();
-    input.setAttribute("aria-expanded", "false");
+  function JH_hideMenu() {
+    if (!JH_menu) return;
+    JH_menu.hidden = true;
+    JH_menu.replaceChildren();
+    JH_input.setAttribute("aria-expanded", "false");
   }
 
-  function optionList(value) {
-    if (!value || value.charAt(0) !== "/") return [];
-    var body = value.slice(1);
-    var parts = body.split(/\s+/);
-    var list = registry.list;
-    if (parts.length <= 1 && !/\s$/.test(value)) {
-      var q = (parts[0] || "").toLowerCase();
-      return list.filter(function (cmd) {
-        return !q || cmd.name.indexOf(q) !== -1;
-      }).sort(function (a, b) {
-        var as = !q || a.name.indexOf(q) === 0 ? 0 : 1;
-        var bs = !q || b.name.indexOf(q) === 0 ? 0 : 1;
-        return as - bs;
-      }).map(function (cmd) {
-        return { insert: "/" + cmd.name, title: "/" + cmd.name, detail: cmd.summary };
+  function JH_optionList(JH_value) {
+    if (!JH_value) return [];
+    var JH_slash = JH_value.charAt(0) === "/";
+    if (!JH_slash && !/^[A-Za-z?]/.test(JH_value)) return [];
+    var JH_body = JH_slash ? JH_value.slice(1) : JH_value;
+    var JH_parts = JH_body.split(/\s+/);
+    var JH_list = JH_registry.list;
+    if (JH_parts.length <= 1 && !/\s$/.test(JH_value)) {
+      var JH_q = (JH_parts[0] || "").toLowerCase();
+      return JH_list.filter(function (JH_cmd) {
+        if (!JH_slash && !JH_cmd.bare) return false;
+        return !JH_q || JH_cmd.name.indexOf(JH_q) !== -1;
+      }).sort(function (JH_a, JH_b) {
+        var JH_as = !JH_q || JH_a.name.indexOf(JH_q) === 0 ? 0 : 1;
+        var JH_bs = !JH_q || JH_b.name.indexOf(JH_q) === 0 ? 0 : 1;
+        return JH_as - JH_bs;
+      }).map(function (JH_cmd) {
+        var JH_shown = (JH_slash ? "/" : "") + JH_cmd.name;
+        return { insert: JH_shown, title: JH_shown, detail: JH_cmd.summary };
       });
     }
-    var name = (parts[0] || "").toLowerCase();
-    var partial = (parts[parts.length - 1] || "").toLowerCase();
-    if (/\s$/.test(value)) partial = "";
-    var options = [];
-    if (name === "theme") {
-      options = [
+    var JH_name = (JH_parts[0] || "").toLowerCase();
+    if (!JH_slash && !JH_registry.isBare(JH_name)) return [];
+    var JH_partial = (JH_parts[JH_parts.length - 1] || "").toLowerCase();
+    if (/\s$/.test(JH_value)) JH_partial = "";
+    var JH_options = [];
+    if (JH_name === "theme") {
+      JH_options = [
         ["light", "warm paper"],
         ["dark", "phosphor lab"],
         ["next", "the other one"]
       ];
-    } else if (name === "game") {
-      options = [
-        ["2048", registry.games["2048"].about],
-        ["snake", registry.games.snake.about],
-        ["tetris", registry.games.tetris.about]
+    } else if (JH_name === "game") {
+      JH_options = [
+        ["2048", JH_registry.games["2048"].about],
+        ["snake", JH_registry.games.snake.about],
+        ["tetris", JH_registry.games.tetris.about]
       ];
-    } else if (name === "cat") {
-      options = Object.keys(registry.files).map(function (file) { return [file, "guest file"]; });
-    } else if (name === "man") {
-      options = list.map(function (cmd) { return [cmd.name, cmd.summary]; });
-    } else if (name === "open") {
-      options = ["github", "x", "hf", "toolbox", "snake", "2048", "tetris", "home"].map(function (place) {
-        return [place, "known link"];
+    } else if (JH_name === "cat") {
+      JH_options = Object.keys(JH_registry.files).map(function (JH_file) { return [JH_file, "guest file"]; });
+    } else if (JH_name === "man") {
+      JH_options = JH_list.map(function (JH_cmd) { return [JH_cmd.name, JH_cmd.summary]; });
+    } else if (JH_name === "open") {
+      JH_options = ["github", "x", "hf", "toolbox", "snake", "2048", "tetris", "home"].map(function (JH_place) {
+        return [JH_place, "known link"];
       });
-    } else if (name === "repo" && window.JH270GitHub && window.JH270GitHub.peek()) {
-      options = window.JH270GitHub.peek().repos.map(function (repo) {
-        return [repo.name, repo.language || "repository"];
+    } else if (JH_name === "repo" && window.JH270GitHub && window.JH270GitHub.peek()) {
+      JH_options = window.JH270GitHub.peek().repos.map(function (JH_repo) {
+        return [JH_repo.name, JH_repo.language || "repository"];
       });
     }
-    var head = "/" + (registry.find(name) ? registry.find(name).name : parts[0]);
-    return options.filter(function (item) {
-      return !partial || item[0].toLowerCase().indexOf(partial) === 0;
-    }).map(function (item) {
-      return { insert: head + " " + item[0], title: item[0], detail: item[1] };
+    var JH_head = (JH_slash ? "/" : "") + (JH_registry.find(JH_name) ? JH_registry.find(JH_name).name : JH_parts[0]);
+    return JH_options.filter(function (JH_item) {
+      return !JH_partial || JH_item[0].toLowerCase().indexOf(JH_partial) === 0;
+    }).map(function (JH_item) {
+      return { insert: JH_head + " " + JH_item[0], title: JH_item[0], detail: JH_item[1] };
     });
   }
 
-  function paintMenu() {
-    if (!menu) return;
-    menu.replaceChildren();
-    if (!suggestions.length || document.activeElement !== input) {
-      menu.hidden = true;
-      input.setAttribute("aria-expanded", "false");
+  function JH_paintMenu() {
+    if (!JH_menu) return;
+    JH_menu.replaceChildren();
+    if (!JH_suggestions.length || document.activeElement !== JH_input) {
+      JH_menu.hidden = true;
+      JH_input.setAttribute("aria-expanded", "false");
       return;
     }
-    if (selected >= suggestions.length) selected = 0;
-    menu.hidden = false;
-    input.setAttribute("aria-expanded", "true");
-    suggestions.forEach(function (item, index) {
-      var button = document.createElement("button");
-      button.type = "button";
-      button.setAttribute("role", "option");
-      button.setAttribute("aria-selected", index === selected ? "true" : "false");
-      var title = document.createElement("span");
-      title.textContent = item.title;
-      var detail = document.createElement("span");
-      detail.textContent = item.detail || "";
-      button.appendChild(title);
-      button.appendChild(detail);
-      button.addEventListener("mousedown", function (event) {
-        event.preventDefault();
-        accept(item.insert);
+    if (JH_selected >= JH_suggestions.length) JH_selected = 0;
+    JH_menu.hidden = false;
+    JH_input.setAttribute("aria-expanded", "true");
+    JH_suggestions.forEach(function (JH_item, JH_index) {
+      var JH_button = document.createElement("button");
+      JH_button.type = "button";
+      JH_button.setAttribute("role", "option");
+      JH_button.setAttribute("aria-selected", JH_index === JH_selected ? "true" : "false");
+      var JH_title = document.createElement("span");
+      JH_title.textContent = JH_item.title;
+      var JH_detail = document.createElement("span");
+      JH_detail.textContent = JH_item.detail || "";
+      JH_button.appendChild(JH_title);
+      JH_button.appendChild(JH_detail);
+      JH_button.addEventListener("mousedown", function (JH_event) {
+        JH_event.preventDefault();
+        JH_accept(JH_item.insert);
       });
-      menu.appendChild(button);
+      JH_menu.appendChild(JH_button);
     });
-    var current = menu.querySelector('[aria-selected="true"]');
-    if (current && current.scrollIntoView) current.scrollIntoView({ block: "nearest" });
+    var JH_current = JH_menu.querySelector('[aria-selected="true"]');
+    if (JH_current && JH_current.scrollIntoView) JH_current.scrollIntoView({ block: "nearest" });
   }
 
-  function refreshMenu() {
-    suggestions = optionList(input.value);
-    selected = 0;
-    paintMenu();
+  function JH_refreshMenu() {
+    JH_suggestions = JH_optionList(JH_input.value);
+    JH_selected = 0;
+    JH_paintMenu();
   }
 
-  function valueToRun(typed) {
-    if (!suggestions.length || menu.hidden) return typed;
-    var chosen = suggestions[selected] || suggestions[0];
-    if (typed.indexOf(" ") === -1) return chosen.insert;
-    if (chosen.insert.indexOf(typed) === 0) return chosen.insert;
-    return typed;
+  function JH_valueToRun(JH_typed) {
+    if (!JH_suggestions.length || JH_menu.hidden) return JH_typed;
+    var JH_chosen = JH_suggestions[JH_selected] || JH_suggestions[0];
+    if (JH_typed.indexOf(" ") === -1) return JH_chosen.insert;
+    if (JH_chosen.insert.indexOf(JH_typed) === 0) return JH_chosen.insert;
+    return JH_typed;
   }
 
-  function accept(value) {
-    var trimmed = String(value || "").trim();
-    input.value = "";
-    historyIndex = commandHistory.length;
-    hideMenu();
-    if (!trimmed) return;
-    commandHistory.push(trimmed);
-    historyIndex = commandHistory.length;
-    submit(trimmed);
+  function JH_accept(JH_value) {
+    var JH_trimmed = String(JH_value || "").trim();
+    JH_input.value = "";
+    JH_historyIndex = JH_commandHistory.length;
+    JH_hideMenu();
+    if (!JH_trimmed) return;
+    JH_commandHistory.push(JH_trimmed);
+    JH_historyIndex = JH_commandHistory.length;
+    JH_submit(JH_trimmed);
   }
 
-  function historyNav(direction) {
-    if (!commandHistory.length) return;
-    if (direction < 0) historyIndex = Math.max(0, historyIndex - 1);
-    else historyIndex = Math.min(commandHistory.length, historyIndex + 1);
-    input.value = historyIndex === commandHistory.length ? "" : commandHistory[historyIndex];
-    suggestions = [];
-    hideMenu();
+  function JH_historyNav(JH_direction) {
+    if (!JH_commandHistory.length) return;
+    if (JH_direction < 0) JH_historyIndex = Math.max(0, JH_historyIndex - 1);
+    else JH_historyIndex = Math.min(JH_commandHistory.length, JH_historyIndex + 1);
+    JH_input.value = JH_historyIndex === JH_commandHistory.length ? "" : JH_commandHistory[JH_historyIndex];
+    JH_suggestions = [];
+    JH_hideMenu();
   }
 
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-    accept(valueToRun(input.value));
+  JH_form.addEventListener("submit", function (JH_event) {
+    JH_event.preventDefault();
+    JH_accept(JH_valueToRun(JH_input.value));
   });
 
-  input.addEventListener("input", function () {
-    historyIndex = commandHistory.length;
-    refreshMenu();
+  JH_input.addEventListener("input", function () {
+    JH_historyIndex = JH_commandHistory.length;
+    JH_refreshMenu();
   });
 
-  input.addEventListener("keydown", function (event) {
-    var menuOpen = menu && !menu.hidden && suggestions.length;
-    if (event.key === "ArrowDown" && menuOpen) {
-      event.preventDefault();
-      selected = (selected + 1) % suggestions.length;
-      paintMenu();
+  JH_input.addEventListener("keydown", function (JH_event) {
+    var JH_menuOpen = JH_menu && !JH_menu.hidden && JH_suggestions.length;
+    if (JH_event.key === "ArrowDown" && JH_menuOpen) {
+      JH_event.preventDefault();
+      JH_selected = (JH_selected + 1) % JH_suggestions.length;
+      JH_paintMenu();
       return;
     }
-    if (event.key === "ArrowUp" && menuOpen) {
-      event.preventDefault();
-      selected = (selected - 1 + suggestions.length) % suggestions.length;
-      paintMenu();
+    if (JH_event.key === "ArrowUp" && JH_menuOpen) {
+      JH_event.preventDefault();
+      JH_selected = (JH_selected - 1 + JH_suggestions.length) % JH_suggestions.length;
+      JH_paintMenu();
       return;
     }
-    if (event.key === "ArrowUp" && !menuOpen) {
-      event.preventDefault();
-      historyNav(-1);
+    if (JH_event.key === "ArrowUp" && !JH_menuOpen) {
+      JH_event.preventDefault();
+      JH_historyNav(-1);
       return;
     }
-    if (event.key === "ArrowDown" && !menuOpen) {
-      event.preventDefault();
-      historyNav(1);
+    if (JH_event.key === "ArrowDown" && !JH_menuOpen) {
+      JH_event.preventDefault();
+      JH_historyNav(1);
       return;
     }
-    if (event.key === "Tab" && menuOpen) {
-      event.preventDefault();
-      var insert = suggestions[selected].insert;
-      var leaf = insert.indexOf(" ") === -1 ? insert.slice(1) : "";
-      if (leaf && ["theme", "game", "cat", "man", "open", "repo"].indexOf(leaf) !== -1) insert += " ";
-      input.value = insert;
-      refreshMenu();
+    if (JH_event.key === "Tab" && JH_menuOpen) {
+      JH_event.preventDefault();
+      var JH_insert = JH_suggestions[JH_selected].insert;
+      var JH_token = JH_insert.split(" ")[0].replace(/^\//, "");
+      if (JH_insert.indexOf(" ") === -1 && ["theme", "game", "cat", "man", "open", "repo"].indexOf(JH_token) !== -1) JH_insert += " ";
+      JH_input.value = JH_insert;
+      JH_refreshMenu();
       return;
     }
-    if (event.key === "Escape" && menuOpen) {
-      event.preventDefault();
-      event.stopPropagation();
-      hideMenu();
+    if (JH_event.key === "Escape" && JH_menuOpen) {
+      JH_event.preventDefault();
+      JH_event.stopPropagation();
+      JH_hideMenu();
     }
   });
 
-  input.addEventListener("blur", function () {
+  JH_input.addEventListener("blur", function () {
     window.setTimeout(function () {
-      if (document.activeElement !== input) hideMenu();
+      if (document.activeElement !== JH_input) JH_hideMenu();
     }, 150);
   });
 
-  document.addEventListener("keydown", function (event) {
-    var key = event.key.toLowerCase();
-    if (event.key === "Escape") {
-      if (menu && !menu.hidden) return;
-      if (stage && !stage.hidden) {
-        event.preventDefault();
-        closeStage(false);
+  document.addEventListener("keydown", function (JH_event) {
+    var JH_key = JH_event.key.toLowerCase();
+    if (JH_event.key === "Escape") {
+      if (JH_menu && !JH_menu.hidden) return;
+      if (JH_stage && !JH_stage.hidden) {
+        JH_event.preventDefault();
+        JH_closeStage(false);
         return;
       }
-      skip = true;
+      JH_skip = true;
       return;
     }
-    if (!event.ctrlKey && !event.metaKey) return;
-    if (key === "l") {
-      event.preventDefault();
-      halt("clear");
+    if (!JH_event.ctrlKey && !JH_event.metaKey) return;
+    if (JH_key === "l") {
+      JH_event.preventDefault();
+      JH_halt("clear");
       return;
     }
-    if (key !== "c") return;
-    var selection = window.getSelection ? String(window.getSelection()) : "";
-    if (selection) return;
-    if (document.activeElement === input && input.selectionStart !== input.selectionEnd) return;
-    if (pumping || booting) {
-      event.preventDefault();
-      halt("ctrlc");
+    if (JH_key !== "c") return;
+    var JH_selection = window.getSelection ? String(window.getSelection()) : "";
+    if (JH_selection) return;
+    if (document.activeElement === JH_input && JH_input.selectionStart !== JH_input.selectionEnd) return;
+    if (JH_pumping || JH_booting) {
+      JH_event.preventDefault();
+      JH_halt("ctrlc");
       return;
     }
-    if (document.activeElement === input && input.value) {
-      event.preventDefault();
-      var typed = input.value;
-      input.value = "";
-      hideMenu();
-      var node = document.createElement("p");
-      node.className = "line line-warn";
-      node.textContent = "^C " + typed;
-      screen.appendChild(node);
-      stick(true);
+    if (document.activeElement === JH_input && JH_input.value) {
+      JH_event.preventDefault();
+      var JH_typed = JH_input.value;
+      JH_input.value = "";
+      JH_hideMenu();
+      var JH_node = document.createElement("p");
+      JH_node.className = "line line-warn";
+      JH_node.textContent = "^C " + JH_typed;
+      JH_screen.appendChild(JH_node);
+      JH_stick(true);
     }
   });
 
-  screen.addEventListener("click", function (event) {
-    var button = event.target.closest("[data-run]");
-    if (button) {
-      accept(button.getAttribute("data-run"));
+  JH_screen.addEventListener("click", function (JH_event) {
+    var JH_button = JH_event.target.closest("[data-run]");
+    if (JH_button) {
+      JH_accept(JH_button.getAttribute("data-run"));
       return;
     }
-    if (event.target.closest("a, button")) return;
-    var selection = window.getSelection ? String(window.getSelection()) : "";
-    if (!selection) input.focus();
+    if (JH_event.target.closest("a, button")) return;
+    var JH_selection = window.getSelection ? String(window.getSelection()) : "";
+    if (!JH_selection) JH_input.focus();
   });
 
-  var closeButton = document.getElementById("stage-close");
-  var fullButton = document.getElementById("stage-full");
-  if (closeButton) closeButton.addEventListener("click", function () { closeStage(false); });
-  if (fullButton) {
-    fullButton.addEventListener("click", function () {
-      var request = stage.requestFullscreen || stage.webkitRequestFullscreen;
-      if (!request) {
-        fullButton.textContent = "Unavailable";
+  var JH_closeButton = document.getElementById("stage-close");
+  var JH_fullButton = document.getElementById("stage-full");
+  if (JH_closeButton) JH_closeButton.addEventListener("click", function () { JH_closeStage(false); });
+  if (JH_fullButton) {
+    JH_fullButton.addEventListener("click", function () {
+      var JH_request = JH_stage.requestFullscreen || JH_stage.webkitRequestFullscreen;
+      if (!JH_request) {
+        JH_fullButton.textContent = "Unavailable";
         return;
       }
-      request.call(stage);
+      JH_request.call(JH_stage);
     });
   }
-  if (frame) {
-    frame.addEventListener("load", function () {
-      if (stage.hidden || !frame.getAttribute("src") || frame.src.indexOf("about:blank") !== -1) return;
-      try { frame.focus(); } catch (err) {}
+  if (JH_frame) {
+    JH_frame.addEventListener("load", function () {
+      if (JH_stage.hidden || !JH_frame.getAttribute("src") || JH_frame.src.indexOf("about:blank") !== -1) return;
+      try { JH_frame.focus(); } catch (JH_err) {}
     });
   }
 
-  window.addEventListener("jh270-theme", paintThemeStatus);
-  paintThemeStatus();
+  window.addEventListener("jh270-theme", JH_paintThemeStatus);
+  JH_paintThemeStatus();
 
-  var welcome = [
+  var JH_welcome = [
     "JH270 TERMINAL",
     "English (United States)",
     "",
     "You are guest@jh270.com.",
     "This shell prints answers. It does not run programs on a machine.",
+    "Linux names such as ls and cat also run without a slash.",
     "",
     "  /help      command list",
     "  /about     who Jinhong270 is",
@@ -567,32 +574,32 @@
     ""
   ];
 
-  function allowedRun(value) {
-    return /^\/[A-Za-z0-9?]+( [A-Za-z0-9._@:/ -]+)?$/.test(value) && value.length <= 160;
+  function JH_allowedRun(JH_value) {
+    return /^\/?[A-Za-z0-9?]+( [A-Za-z0-9._@:/ -]+)?$/.test(JH_value) && JH_value.length <= 160;
   }
 
-  async function boot() {
-    var params = new URLSearchParams(window.location.search);
-    var requested = (params.get("run") || "").trim();
-    var autorun = allowedRun(requested) ? requested : "";
-    var instant = Boolean(autorun) || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (instant) skip = true;
-    for (var i = 0; i < welcome.length; i++) {
-      if (canceled) break;
-      await printLine(welcome[i], i === 0 ? "accent" : "");
+  async function JH_boot() {
+    var JH_params = new URLSearchParams(window.location.search);
+    var JH_requested = (JH_params.get("run") || "").trim();
+    var JH_autorun = JH_allowedRun(JH_requested) ? JH_requested : "";
+    var JH_instant = Boolean(JH_autorun) || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (JH_instant) JH_skip = true;
+    for (var JH_i = 0; JH_i < JH_welcome.length; JH_i++) {
+      if (JH_canceled) break;
+      await JH_printLine(JH_welcome[JH_i], JH_i === 0 ? "accent" : "");
     }
-    if (canceled && stopMode === "ctrlc") await printLine("^C", "warn", true);
-    var runAfter = canceled ? "" : autorun;
-    canceled = false;
-    skip = false;
-    stopMode = "";
-    booting = false;
-    if (requested && !autorun) await printLine("Ignored the linked command.", "dim");
-    if (runAfter) queue.unshift(runAfter);
-    updateQueue();
-    pump();
-    if (!stage || stage.hidden) input.focus();
+    if (JH_canceled && JH_stopMode === "ctrlc") await JH_printLine("^C", "warn", true);
+    var JH_runAfter = JH_canceled ? "" : JH_autorun;
+    JH_canceled = false;
+    JH_skip = false;
+    JH_stopMode = "";
+    JH_booting = false;
+    if (JH_requested && !JH_autorun) await JH_printLine("Ignored the linked command.", "dim");
+    if (JH_runAfter) JH_queue.unshift(JH_runAfter);
+    JH_updateQueue();
+    JH_pump();
+    if (!JH_stage || JH_stage.hidden) JH_input.focus();
   }
 
-  boot();
+  JH_boot();
 })();

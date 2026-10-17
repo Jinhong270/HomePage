@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>
     (function () {
-      var saved = "";
-      try { saved = localStorage.getItem("jh270-theme") || ""; } catch (err) {}
-      var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var theme = saved === "light" || saved === "dark" ? saved : (dark ? "dark" : "light");
-      var root = document.documentElement;
-      root.dataset.theme = theme;
-      root.dataset.themeChoice = theme;
+      var JH_saved = "";
+      try { JH_saved = localStorage.getItem("jh270-theme") || ""; } catch (JH_err) {}
+      var JH_dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var JH_theme = JH_saved === "light" || JH_saved === "dark" ? JH_saved : (JH_dark ? "dark" : "light");
+      var JH_root = document.documentElement;
+      JH_root.dataset.theme = JH_theme;
+      JH_root.dataset.themeChoice = JH_theme;
     })();
   </script>
   <title>Jinhong270 — jh270.com</title>
@@ -43,7 +43,10 @@
         <a href="terminal/">Terminal</a>
       </nav>
       <button type="button" class="theme-btn" data-theme-toggle aria-label="Switch between day and night.">
-        <span data-theme-label></span>
+        <span class="theme-swap" data-theme-label>
+          <span class="theme-face theme-face-day">DAY</span>
+          <span class="theme-face theme-face-night">NIGHT</span>
+        </span>
       </button>
     </div>
   </header>

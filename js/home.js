@@ -1,7 +1,7 @@
 (function () {
-  var boot = document.getElementById("boot");
-  if (boot) {
-    var lines = [
+  var JH_boot = document.getElementById("boot");
+  if (JH_boot) {
+    var JH_lines = [
       "jh270 boot 1.0",
       "locale ............. en-US",
       "session ............. guest@jh270.com",
@@ -14,27 +14,27 @@
       "",
       "ready."
     ];
-    var text = lines.join("\n");
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      boot.textContent = text;
+    var JH_text = JH_lines.join("\n");
+    var JH_reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (JH_reduce) {
+      JH_boot.textContent = JH_text;
     } else {
-      var index = 0;
-      var step = function () {
-        index += 1;
-        boot.textContent = text.slice(0, index);
-        if (index < text.length) {
-          window.setTimeout(step, text.charAt(index - 1) === "\n" ? 36 : 12);
+      var JH_index = 0;
+      var JH_step = function () {
+        JH_index += 1;
+        JH_boot.textContent = JH_text.slice(0, JH_index);
+        if (JH_index < JH_text.length) {
+          window.setTimeout(JH_step, JH_text.charAt(JH_index - 1) === "\n" ? 36 : 12);
         }
       };
-      step();
+      JH_step();
     }
   }
 
-  var clock = document.getElementById("clock");
-  if (!clock) return;
-  var draw = function () {
-    clock.textContent = new Date().toLocaleString("en-US", {
+  var JH_clock = document.getElementById("clock");
+  if (!JH_clock) return;
+  var JH_draw = function () {
+    JH_clock.textContent = new Date().toLocaleString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
@@ -42,6 +42,6 @@
       timeZoneName: "short"
     });
   };
-  draw();
-  window.setInterval(draw, 1000);
+  JH_draw();
+  window.setInterval(JH_draw, 1000);
 })();
