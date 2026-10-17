@@ -142,25 +142,26 @@
       await ctx.printLine("Theme control is missing on this page.", "warn");
       return;
     }
-    var mark = api.choice === "dark" ? "NIGHT" : api.choice === "light" ? "DAY" : "SYS";
+    function mark() {
+      return api.theme === "dark" ? "NIGHT" : "DAY";
+    }
     if (!choice) {
-      await ctx.printLine("Theme: " + api.theme + " (" + mark + ")");
+      await ctx.printLine("Theme: " + api.theme + " (" + mark() + ")");
+      await ctx.printLine(api.choice === "system" ? "Following this device until you choose." : "Chosen on this page. It no longer follows this device.");
       await ctx.printLine("");
-      await ctx.printLine("system   follow this device");
       await ctx.printLine("light    warm paper");
       await ctx.printLine("dark     phosphor lab");
       await ctx.printLine("");
-      await ctx.printLine("Usage: /theme system | light | dark | next");
+      await ctx.printLine("Usage: /theme light | dark | next");
       return;
     }
     if (choice === "next") api.cycle();
-    else if (choice === "light" || choice === "dark" || choice === "system") api.set(choice);
+    else if (choice === "light" || choice === "dark") api.set(choice);
     else {
-      await ctx.printLine("Unknown theme \"" + clean(args[0], 40) + "\". Use system, light, dark, or next.", "warn");
+      await ctx.printLine("Unknown theme \"" + clean(args[0], 40) + "\". Use light, dark, or next.", "warn");
       return;
     }
-    mark = api.choice === "dark" ? "NIGHT" : api.choice === "light" ? "DAY" : "SYS";
-    await ctx.printLine("Theme: " + api.theme + " (" + mark + ")");
+    await ctx.printLine("Theme: " + api.theme + " (" + mark() + ")");
   }
 
   async function gameCmd(args, ctx) {
@@ -511,7 +512,7 @@
 
   var commands = [
     { name: "help", bare: true, group: "Session", summary: "List commands", usage: "help  or  /help", detail: "Groups the commands this guest shell can print.", run: help },
-    { name: "theme", group: "Session", summary: "Switch system, light, or dark", usage: "/theme [system|light|dark|next]", detail: "The same choice as the button at the top right. system follows this device, and a first visit uses system.", run: themeCmd },
+    { name: "theme", group: "Session", summary: "Switch light or dark", usage: "/theme [light|dark|next]", detail: "The same choice as the button at the top right. A first visit follows this device. Choosing light or dark keeps that choice.", run: themeCmd },
     { name: "clear", bare: true, group: "Session", summary: "Clear the screen", usage: "clear  or  /clear", detail: "Ctrl+L does the same.", run: clearCmd },
     { name: "history", bare: true, group: "Session", summary: "Show commands from this visit", usage: "history  or  /history", detail: "Only this page session. Nothing is stored on a server.", run: historyCmd },
     { name: "lang", group: "Session", summary: "Show the terminal language", usage: "/lang", detail: "English (United States). There is no language switch.", run: langCmd },

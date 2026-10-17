@@ -4,7 +4,6 @@
   var animTimer = 0;
   var flipTimer = 0;
   var flipEnd = 0;
-  var order = ["system", "light", "dark"];
 
   function systemTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -13,7 +12,7 @@
   function savedChoice() {
     try {
       var saved = localStorage.getItem(KEY);
-      if (saved === "light" || saved === "dark" || saved === "system") return saved;
+      if (saved === "light" || saved === "dark") return saved;
       if (saved) localStorage.removeItem(KEY);
     } catch (err) {}
     return "";
@@ -25,16 +24,13 @@
     } catch (err) {}
   }
 
-  function labelFor(choice) {
-    if (choice === "dark") return "NIGHT";
-    if (choice === "light") return "DAY";
-    return "SYS";
+  function labelFor(theme) {
+    return theme === "dark" ? "NIGHT" : "DAY";
   }
 
-  function nameFor(choice) {
-    if (choice === "dark") return "Theme is dark. Activate to switch.";
-    if (choice === "light") return "Theme is light. Activate to switch.";
-    return "Theme follows the system. Activate to switch.";
+  function nameFor(theme) {
+    if (theme === "dark") return "Theme is dark. Activate to switch to light.";
+    return "Theme is light. Activate to switch to dark.";
   }
 
   function labels() {
@@ -83,36 +79,47 @@
     }, 560);
   }
 
-  function apply(choice, fromUser) {
-    var mode = choice === "light" || choice === "dark" ? choice : "system";
-    var resolved = mode === "system" ? systemTheme() : mode;
-    writeChoice(mode);
-    if (root.dataset.theme !== resolved) armThemeAnim();
+  function paintChrome(resolved, choice, fromUser) {
+    if (fromUser && root.dataset.theme !== resolved) armThemeAnim();
     root.dataset.theme = resolved;
-    root.dataset.themeChoice = mode;
+    root.dataset.themeChoice = choice;
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", resolved === "light" ? "#f4efe4" : "#080a07");
     var buttons = document.querySelectorAll("[data-theme-toggle]");
+    var name = nameFor(resolved);
     for (var i = 0; i < buttons.length; i++) {
-      buttons[i].setAttribute("aria-label", nameFor(mode));
-      buttons[i].title = nameFor(mode);
+      buttons[i].setAttribute("aria-label", name);
+      buttons[i].title = name;
     }
-    if (fromUser) flipLabels(labelFor(mode));
-    else setLabels(labelFor(mode));
-    window.dispatchEvent(new CustomEvent("jh270-theme", { detail: { choice: mode, theme: resolved } }));
+    if (fromUser) flipLabels(labelFor(resolved));
+    else setLabels(labelFor(resolved));
+    window.dispatchEvent(new CustomEvent("jh270-theme", { detail: { choice: choice, theme: resolved } }));
+  }
+
+  function apply(theme, fromUser) {
+    var locked = savedChoice();
+    var resolved;
+    if (fromUser) {
+      resolved = theme === "dark" ? "dark" : "light";
+      writeChoice(resolved);
+      locked = resolved;
+    } else if (locked) {
+      resolved = locked;
+    } else {
+      resolved = theme === "dark" ? "dark" : "light";
+    }
+    paintChrome(resolved, locked || "system", fromUser);
   }
 
   function cycle() {
-    var current = savedChoice() || "system";
-    var index = order.indexOf(current);
-    if (index < 0) index = 0;
-    apply(order[(index + 1) % order.length], true);
+    var current = root.dataset.theme === "dark" ? "dark" : "light";
+    apply(current === "dark" ? "light" : "dark", true);
   }
 
-  apply(savedChoice() || "system", false);
+  apply(savedChoice() || systemTheme(), false);
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-    if ((savedChoice() || "system") === "system") apply("system", false);
+    if (!savedChoice()) apply(systemTheme(), false);
   });
 
   document.addEventListener("click", function (event) {
@@ -128,7 +135,10 @@
     get theme() {
       return root.dataset.theme === "dark" ? "dark" : "light";
     },
-    set: function (next) { apply(next, true); },
+    set: function (next) {
+      if (next !== "light" && next !== "dark") return;
+      apply(next, true);
+    },
     cycle: cycle
   };
 })();
