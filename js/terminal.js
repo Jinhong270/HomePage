@@ -244,12 +244,13 @@
   async function dispatch(raw) {
     var parsed = parse(raw);
     if (!parsed.name) return;
-    if (!parsed.slash) {
-      await printLine("jhsh: " + parsed.raw + ": this shell only prints replies. Try /help.", "warn");
-      return;
-    }
     var cmd = registry.find(parsed.name);
-    if (!cmd) {
+    if (!parsed.slash) {
+      if (!registry.isBare(parsed.name)) {
+        await printLine("jhsh: " + parsed.raw + ": this shell only prints replies. Try /help.", "warn");
+        return;
+      }
+    } else if (!cmd) {
       await printLine("/" + parsed.name + ": unknown command. Type /help.", "warn");
       return;
     }
@@ -303,23 +304,28 @@
   }
 
   function optionList(value) {
-    if (!value || value.charAt(0) !== "/") return [];
-    var body = value.slice(1);
+    if (!value) return [];
+    var slash = value.charAt(0) === "/";
+    if (!slash && !/^[A-Za-z?]/.test(value)) return [];
+    var body = slash ? value.slice(1) : value;
     var parts = body.split(/\s+/);
     var list = registry.list;
     if (parts.length <= 1 && !/\s$/.test(value)) {
       var q = (parts[0] || "").toLowerCase();
       return list.filter(function (cmd) {
+        if (!slash && !cmd.bare) return false;
         return !q || cmd.name.indexOf(q) !== -1;
       }).sort(function (a, b) {
         var as = !q || a.name.indexOf(q) === 0 ? 0 : 1;
         var bs = !q || b.name.indexOf(q) === 0 ? 0 : 1;
         return as - bs;
       }).map(function (cmd) {
-        return { insert: "/" + cmd.name, title: "/" + cmd.name, detail: cmd.summary };
+        var shown = (slash ? "/" : "") + cmd.name;
+        return { insert: shown, title: shown, detail: cmd.summary };
       });
     }
     var name = (parts[0] || "").toLowerCase();
+    if (!slash && !registry.isBare(name)) return [];
     var partial = (parts[parts.length - 1] || "").toLowerCase();
     if (/\s$/.test(value)) partial = "";
     var options = [];
@@ -348,7 +354,7 @@
         return [repo.name, repo.language || "repository"];
       });
     }
-    var head = "/" + (registry.find(name) ? registry.find(name).name : parts[0]);
+    var head = (slash ? "/" : "") + (registry.find(name) ? registry.find(name).name : parts[0]);
     return options.filter(function (item) {
       return !partial || item[0].toLowerCase().indexOf(partial) === 0;
     }).map(function (item) {
@@ -459,8 +465,8 @@
     if (event.key === "Tab" && menuOpen) {
       event.preventDefault();
       var insert = suggestions[selected].insert;
-      var leaf = insert.indexOf(" ") === -1 ? insert.slice(1) : "";
-      if (leaf && ["theme", "game", "cat", "man", "open", "repo"].indexOf(leaf) !== -1) insert += " ";
+      var token = insert.split(" ")[0].replace(/^\//, "");
+      if (insert.indexOf(" ") === -1 && ["theme", "game", "cat", "man", "open", "repo"].indexOf(token) !== -1) insert += " ";
       input.value = insert;
       refreshMenu();
       return;
@@ -558,6 +564,7 @@
     "",
     "You are guest@jh270.com.",
     "This shell prints answers. It does not run programs on a machine.",
+    "Linux names such as ls and cat also run without a slash.",
     "",
     "  /help      command list",
     "  /about     who Jinhong270 is",
@@ -568,7 +575,7 @@
   ];
 
   function allowedRun(value) {
-    return /^\/[A-Za-z0-9?]+( [A-Za-z0-9._@:/ -]+)?$/.test(value) && value.length <= 160;
+    return /^\/?[A-Za-z0-9?]+( [A-Za-z0-9._@:/ -]+)?$/.test(value) && value.length <= 160;
   }
 
   async function boot() {

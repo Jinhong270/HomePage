@@ -151,6 +151,9 @@ a:hover { color: var(--accent); }
 
 .theme-btn {
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--line-strong);
   background: var(--bg-raise);
   color: var(--text);
@@ -161,12 +164,74 @@ a:hover { color: var(--accent); }
   min-width: 5.4rem;
 }
 
-.theme-btn [data-theme-label]::before {
-  content: "DAY";
+.theme-swap {
+  display: grid;
+  place-items: center;
+  min-width: 4.4rem;
+  height: 1.2em;
+  overflow: hidden;
+  perspective: 320px;
 }
 
-:root[data-theme="dark"] .theme-btn [data-theme-label]::before {
-  content: "NIGHT";
+.theme-face {
+  grid-area: 1 / 1;
+  display: block;
+  transform-origin: center center;
+}
+
+.theme-face-night {
+  transform: translateY(115%) rotateX(-55deg);
+  opacity: 0;
+}
+
+:root[data-theme="dark"] .theme-face-day {
+  transform: translateY(-115%) rotateX(55deg);
+  opacity: 0;
+}
+
+:root[data-theme="dark"] .theme-face-night {
+  transform: translateY(0) rotateX(0);
+  opacity: 1;
+}
+
+html.theme-anim .theme-face {
+  transition: transform 0.48s cubic-bezier(0.22, 0.82, 0.24, 1), opacity 0.36s ease;
+}
+
+html.theme-anim .theme-btn {
+  animation: theme-pop 0.48s ease;
+}
+
+html.theme-anim body,
+html.theme-anim .top,
+html.theme-anim .monitor,
+html.theme-anim .feature,
+html.theme-anim .card,
+html.theme-anim .github-mount,
+html.theme-anim .statusline,
+html.theme-anim .handles a,
+html.theme-anim .repo,
+html.theme-anim .stat,
+html.theme-anim .btn,
+html.theme-anim .term,
+html.theme-anim .term-bar,
+html.theme-anim .screen,
+html.theme-anim .composer,
+html.theme-anim .term-status,
+html.theme-anim .menu,
+html.theme-anim .stage-bar,
+html.theme-anim .line,
+html.theme-anim .pre,
+html.theme-anim .composer label,
+html.theme-anim .composer input,
+html.theme-anim .theme-btn {
+  transition: background-color 0.48s ease, color 0.48s ease, border-color 0.48s ease, box-shadow 0.48s ease, text-shadow 0.48s ease;
+}
+
+@keyframes theme-pop {
+  0% { transform: scale(0.96); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
 }
 
 .theme-btn:hover { border-color: var(--accent); }
@@ -574,5 +639,32 @@ kbd {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .boot::after, .skeleton { animation: none; }
+  .boot::after, .skeleton, .theme-btn { animation: none; }
+  .theme-face,
+  html.theme-anim .theme-face,
+  html.theme-anim body,
+  html.theme-anim .top,
+  html.theme-anim .monitor,
+  html.theme-anim .feature,
+  html.theme-anim .card,
+  html.theme-anim .github-mount,
+  html.theme-anim .statusline,
+  html.theme-anim .handles a,
+  html.theme-anim .repo,
+  html.theme-anim .stat,
+  html.theme-anim .btn,
+  html.theme-anim .term,
+  html.theme-anim .term-bar,
+  html.theme-anim .screen,
+  html.theme-anim .composer,
+  html.theme-anim .term-status,
+  html.theme-anim .menu,
+  html.theme-anim .stage-bar,
+  html.theme-anim .line,
+  html.theme-anim .pre,
+  html.theme-anim .composer label,
+  html.theme-anim .composer input {
+    transition: none;
+    animation: none;
+  }
 }

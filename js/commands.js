@@ -82,6 +82,12 @@
     twitter: "x"
   };
 
+  var bareAlias = {
+    "?": "help",
+    quit: "exit",
+    cls: "clear"
+  };
+
   function gameBy(token) {
     var key = String(token || "").trim().toLowerCase();
     if (key === "1" || key === "2048") return "2048";
@@ -102,9 +108,17 @@
     return null;
   }
 
+  function isBare(name) {
+    var cmd = find(name);
+    if (!cmd || !cmd.bare) return false;
+    if (name === cmd.name) return true;
+    return bareAlias[name] === cmd.name;
+  }
+
   async function help(args, ctx) {
     var order = ["Session", "Profile", "Files", "Play"];
     await ctx.printLine("Guest shell. Replies are typed. Nothing is executed.");
+    await ctx.printLine("ls, cat, pwd, clear, and other Linux names also run without a slash.");
     await ctx.printLine("Esc finishes a reply. Ctrl+C stops it. Ctrl+L clears the screen.");
     for (var g = 0; g < order.length; g++) {
       if (ctx.stopped()) return;
@@ -118,7 +132,7 @@
       }
     }
     await ctx.printLine("");
-    await ctx.printLine("More detail: /man <command>");
+    await ctx.printLine("More detail: man <command>  or  /man <command>");
   }
 
   async function themeCmd(args, ctx) {
@@ -453,7 +467,7 @@
   async function catCmd(args, ctx) {
     var name = args[0] || "";
     if (!name) {
-      await ctx.printLine("Usage: /cat about.txt | now.txt | games.txt | readme.txt", "warn");
+      await ctx.printLine("Usage: cat about.txt | now.txt | games.txt | readme.txt", "warn");
       return;
     }
     if (!FILES[name]) {
@@ -493,21 +507,21 @@
   }
 
   var commands = [
-    { name: "help", group: "Session", summary: "List commands", usage: "/help", detail: "Groups the commands this guest shell can print.", run: help },
+    { name: "help", bare: true, group: "Session", summary: "List commands", usage: "help  or  /help", detail: "Groups the commands this guest shell can print.", run: help },
     { name: "theme", group: "Session", summary: "Switch light or dark", usage: "/theme [light|dark|next]", detail: "The same choice as the button at the top right. A first visit uses this device's light or dark setting.", run: themeCmd },
-    { name: "clear", group: "Session", summary: "Clear the screen", usage: "/clear", detail: "Ctrl+L does the same.", run: clearCmd },
-    { name: "history", group: "Session", summary: "Show commands from this visit", usage: "/history", detail: "Only this page session. Nothing is stored on a server.", run: historyCmd },
+    { name: "clear", bare: true, group: "Session", summary: "Clear the screen", usage: "clear  or  /clear", detail: "Ctrl+L does the same.", run: clearCmd },
+    { name: "history", bare: true, group: "Session", summary: "Show commands from this visit", usage: "history  or  /history", detail: "Only this page session. Nothing is stored on a server.", run: historyCmd },
     { name: "lang", group: "Session", summary: "Show the terminal language", usage: "/lang", detail: "English (United States). There is no language switch.", run: langCmd },
-    { name: "date", group: "Session", summary: "Show the local date and time", usage: "/date", detail: "Uses the clock on this device.", run: dateCmd },
-    { name: "pwd", group: "Session", summary: "Show the guest directory", usage: "/pwd", detail: "The directory is fictional. The shell does not touch a disk.", run: pwdCmd },
-    { name: "whoami", group: "Session", summary: "Show the guest identity", usage: "/whoami", detail: "You are guest@jh270.com. Jinhong270 operates the site.", run: whoamiCmd },
-    { name: "neofetch", group: "Session", summary: "Show a snapshot of this session", usage: "/neofetch", detail: "Screen size, theme, and browser text from this device.", run: neofetchCmd },
-    { name: "uptime", group: "Session", summary: "Show how long this page has been open", usage: "/uptime", detail: "Counts from the moment the terminal loaded.", run: uptimeCmd },
+    { name: "date", bare: true, group: "Session", summary: "Show the local date and time", usage: "date  or  /date", detail: "Uses the clock on this device.", run: dateCmd },
+    { name: "pwd", bare: true, group: "Session", summary: "Show the guest directory", usage: "pwd  or  /pwd", detail: "The directory is fictional. The shell does not touch a disk.", run: pwdCmd },
+    { name: "whoami", bare: true, group: "Session", summary: "Show the guest identity", usage: "whoami  or  /whoami", detail: "You are guest@jh270.com. Jinhong270 operates the site.", run: whoamiCmd },
+    { name: "neofetch", bare: true, group: "Session", summary: "Show a snapshot of this session", usage: "neofetch  or  /neofetch", detail: "Screen size, theme, and browser text from this device.", run: neofetchCmd },
+    { name: "uptime", bare: true, group: "Session", summary: "Show how long this page has been open", usage: "uptime  or  /uptime", detail: "Counts from the moment the terminal loaded.", run: uptimeCmd },
     { name: "version", group: "Session", summary: "Show the terminal version", usage: "/version", detail: "jh270 terminal 1.0.", run: versionCmd },
-    { name: "man", group: "Session", summary: "Read one command", usage: "/man <command>", detail: "Example: /man game", run: manCmd },
+    { name: "man", bare: true, group: "Session", summary: "Read one command", usage: "man <command>  or  /man <command>", detail: "Example: man game", run: manCmd },
     { name: "hint", group: "Session", summary: "Suggest a command", usage: "/hint", detail: "Picks one command at random.", run: hintCmd },
     { name: "credits", group: "Session", summary: "Where the data and games come from", usage: "/credits", detail: "Client-side GitHub reads, and embedded cabinets.", run: creditsCmd },
-    { name: "exit", group: "Session", summary: "Return to the homepage", usage: "/exit", detail: "Leaves /terminal and opens the homepage.", run: exitCmd },
+    { name: "exit", bare: true, group: "Session", summary: "Return to the homepage", usage: "exit  or  /exit", detail: "Leaves /terminal and opens the homepage.", run: exitCmd },
     { name: "about", group: "Profile", summary: "Who Jinhong270 is", usage: "/about", detail: "Short introduction. The handles match on GitHub, X, and Hugging Face.", run: aboutCmd },
     { name: "now", group: "Profile", summary: "What is being built", usage: "/now", detail: "The active project is AndroidToolBox.", run: nowCmd },
     { name: "toolbox", group: "Profile", summary: "Describe AndroidToolBox", usage: "/toolbox", detail: "Android SSH toolbox for remote files and a shell.", run: toolboxCmd },
@@ -520,14 +534,14 @@
     { name: "x", group: "Profile", summary: "Print the X profile link", usage: "/x", detail: "https://x.com/Jinhong270", run: profileLink("https://x.com/Jinhong270", "X  @Jinhong270") },
     { name: "hf", group: "Profile", summary: "Print the Hugging Face profile link", usage: "/hf", detail: "https://huggingface.co/Jinhong270", run: profileLink("https://huggingface.co/Jinhong270", "Hugging Face  @Jinhong270") },
     { name: "open", group: "Profile", summary: "Print a known link", usage: "/open github | x | hf | toolbox | snake | 2048 | tetris | home", detail: "Prints a link. It does not leave this page by itself.", run: openCmd },
-    { name: "ls", group: "Files", summary: "List the guest files", usage: "/ls", detail: "about.txt, now.txt, games.txt, and readme.txt.", run: lsCmd },
-    { name: "cat", group: "Files", summary: "Print a guest file", usage: "/cat <file>", detail: "Try /cat now.txt", run: catCmd },
-    { name: "echo", group: "Files", summary: "Print the text you type", usage: "/echo <text>", detail: "Prints the text back. It does not evaluate it.", run: echoCmd },
+    { name: "ls", bare: true, group: "Files", summary: "List the guest files", usage: "ls  or  /ls", detail: "about.txt, now.txt, games.txt, and readme.txt.", run: lsCmd },
+    { name: "cat", bare: true, group: "Files", summary: "Print a guest file", usage: "cat <file>  or  /cat <file>", detail: "Try cat now.txt", run: catCmd },
+    { name: "echo", bare: true, group: "Files", summary: "Print the text you type", usage: "echo <text>  or  /echo <text>", detail: "Prints the text back. It does not evaluate it.", run: echoCmd },
     { name: "game", group: "Play", summary: "Embed 2048, Snake, or Tetris", usage: "/game [2048|snake|tetris]", detail: "The cabinet loads inside this page from game-2048, game-snake, or game-tetris on jh270.com.", run: gameCmd },
     { name: "banner", group: "Play", summary: "Print the JH270 mark", usage: "/banner", detail: "A small text mark for the guest prompt.", run: bannerCmd },
     { name: "fortune", group: "Play", summary: "Print a short line", usage: "/fortune", detail: "One line, chosen on this device.", run: fortuneCmd },
-    { name: "ping", group: "Play", summary: "Pretend to ping a host", usage: "/ping [host]", detail: "The numbers are printed locally. No packet is sent.", run: pingCmd },
-    { name: "sudo", group: "Play", summary: "Ask for a permission you do not have", usage: "/sudo [text]", detail: "guest is not in the sudoers file.", run: sudoCmd }
+    { name: "ping", bare: true, group: "Play", summary: "Pretend to ping a host", usage: "ping [host]  or  /ping [host]", detail: "The numbers are printed locally. No packet is sent.", run: pingCmd },
+    { name: "sudo", bare: true, group: "Play", summary: "Ask for a permission you do not have", usage: "sudo [text]  or  /sudo [text]", detail: "guest is not in the sudoers file.", run: sudoCmd }
   ];
 
   window.JH270Commands = {
@@ -535,6 +549,7 @@
     files: FILES,
     games: GAMES,
     gameBy: gameBy,
-    find: find
+    find: find,
+    isBare: isBare
   };
 })();

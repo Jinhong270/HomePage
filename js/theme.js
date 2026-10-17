@@ -1,6 +1,7 @@
 (function () {
   var KEY = "jh270-theme";
   var root = document.documentElement;
+  var animTimer = 0;
 
   function systemTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -26,9 +27,23 @@
     return "Theme is light. Activate to switch to dark.";
   }
 
+  function armThemeAnim() {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    root.classList.remove("theme-anim");
+    void root.offsetWidth;
+    root.classList.add("theme-anim");
+    void root.offsetWidth;
+    window.clearTimeout(animTimer);
+    animTimer = window.setTimeout(function () {
+      root.classList.remove("theme-anim");
+    }, 560);
+  }
+
   function apply(theme, lock) {
     var mode = theme === "dark" ? "dark" : "light";
     if (lock) writeChoice(mode);
+    if (lock && root.dataset.theme !== mode) armThemeAnim();
     root.dataset.theme = mode;
     root.dataset.themeChoice = mode;
     var meta = document.querySelector('meta[name="theme-color"]');
