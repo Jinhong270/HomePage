@@ -142,25 +142,26 @@
       await JH_ctx.printLine("Theme control is missing on this page.", "warn");
       return;
     }
-    var JH_mark = JH_api.choice === "dark" ? "NIGHT" : JH_api.choice === "light" ? "DAY" : "SYS";
+    function JH_mark() {
+      return JH_api.theme === "dark" ? "NIGHT" : "DAY";
+    }
     if (!JH_choice) {
-      await JH_ctx.printLine("Theme: " + JH_api.theme + " (" + JH_mark + ")");
+      await JH_ctx.printLine("Theme: " + JH_api.theme + " (" + JH_mark() + ")");
+      await JH_ctx.printLine(JH_api.choice === "system" ? "Following this device until you choose." : "Chosen on this page. It no longer follows this device.");
       await JH_ctx.printLine("");
-      await JH_ctx.printLine("system   follow this device");
       await JH_ctx.printLine("light    warm paper");
       await JH_ctx.printLine("dark     phosphor lab");
       await JH_ctx.printLine("");
-      await JH_ctx.printLine("Usage: /theme system | light | dark | next");
+      await JH_ctx.printLine("Usage: /theme light | dark | next");
       return;
     }
     if (JH_choice === "next") JH_api.cycle();
-    else if (JH_choice === "light" || JH_choice === "dark" || JH_choice === "system") JH_api.set(JH_choice);
+    else if (JH_choice === "light" || JH_choice === "dark") JH_api.set(JH_choice);
     else {
-      await JH_ctx.printLine("Unknown theme \"" + JH_clean(JH_args[0], 40) + "\". Use system, light, dark, or next.", "warn");
+      await JH_ctx.printLine("Unknown theme \"" + JH_clean(JH_args[0], 40) + "\". Use light, dark, or next.", "warn");
       return;
     }
-    JH_mark = JH_api.choice === "dark" ? "NIGHT" : JH_api.choice === "light" ? "DAY" : "SYS";
-    await JH_ctx.printLine("Theme: " + JH_api.theme + " (" + JH_mark + ")");
+    await JH_ctx.printLine("Theme: " + JH_api.theme + " (" + JH_mark() + ")");
   }
 
   async function JH_gameCmd(JH_args, JH_ctx) {
@@ -511,7 +512,7 @@
 
   var JH_commands = [
     { name: "help", bare: true, group: "Session", summary: "List commands", usage: "help  or  /help", detail: "Groups the commands this guest shell can print.", run: JH_help },
-    { name: "theme", group: "Session", summary: "Switch system, light, or dark", usage: "/theme [system|light|dark|next]", detail: "The same choice as the button at the top right. system follows this device, and a first visit uses system.", run: JH_themeCmd },
+    { name: "theme", group: "Session", summary: "Switch light or dark", usage: "/theme [light|dark|next]", detail: "The same choice as the button at the top right. A first visit follows this device. Choosing light or dark keeps that choice.", run: JH_themeCmd },
     { name: "clear", bare: true, group: "Session", summary: "Clear the screen", usage: "clear  or  /clear", detail: "Ctrl+L does the same.", run: JH_clearCmd },
     { name: "history", bare: true, group: "Session", summary: "Show commands from this visit", usage: "history  or  /history", detail: "Only this page session. Nothing is stored on a server.", run: JH_historyCmd },
     { name: "lang", group: "Session", summary: "Show the terminal language", usage: "/lang", detail: "English (United States). There is no language switch.", run: JH_langCmd },

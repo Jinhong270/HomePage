@@ -4,7 +4,6 @@
   var JH_animTimer = 0;
   var JH_flipTimer = 0;
   var JH_flipEnd = 0;
-  var JH_order = ["system", "light", "dark"];
 
   function JH_systemTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -13,7 +12,7 @@
   function JH_savedChoice() {
     try {
       var JH_saved = localStorage.getItem(JH_KEY);
-      if (JH_saved === "light" || JH_saved === "dark" || JH_saved === "system") return JH_saved;
+      if (JH_saved === "light" || JH_saved === "dark") return JH_saved;
       if (JH_saved) localStorage.removeItem(JH_KEY);
     } catch (JH_err) {}
     return "";
@@ -25,16 +24,13 @@
     } catch (JH_err) {}
   }
 
-  function JH_labelFor(JH_choice) {
-    if (JH_choice === "dark") return "NIGHT";
-    if (JH_choice === "light") return "DAY";
-    return "SYS";
+  function JH_labelFor(JH_theme) {
+    return JH_theme === "dark" ? "NIGHT" : "DAY";
   }
 
-  function JH_nameFor(JH_choice) {
-    if (JH_choice === "dark") return "Theme is dark. Activate to switch.";
-    if (JH_choice === "light") return "Theme is light. Activate to switch.";
-    return "Theme follows the system. Activate to switch.";
+  function JH_nameFor(JH_theme) {
+    if (JH_theme === "dark") return "Theme is dark. Activate to switch to light.";
+    return "Theme is light. Activate to switch to dark.";
   }
 
   function JH_labels() {
@@ -83,36 +79,47 @@
     }, 560);
   }
 
-  function JH_apply(JH_choice, JH_fromUser) {
-    var JH_mode = JH_choice === "light" || JH_choice === "dark" ? JH_choice : "system";
-    var JH_resolved = JH_mode === "system" ? JH_systemTheme() : JH_mode;
-    JH_writeChoice(JH_mode);
-    if (JH_root.dataset.theme !== JH_resolved) JH_armThemeAnim();
+  function JH_paintChrome(JH_resolved, JH_choice, JH_fromUser) {
+    if (JH_fromUser && JH_root.dataset.theme !== JH_resolved) JH_armThemeAnim();
     JH_root.dataset.theme = JH_resolved;
-    JH_root.dataset.themeChoice = JH_mode;
+    JH_root.dataset.themeChoice = JH_choice;
     var JH_meta = document.querySelector('meta[name="theme-color"]');
     if (JH_meta) JH_meta.setAttribute("content", JH_resolved === "light" ? "#f4efe4" : "#080a07");
     var JH_buttons = document.querySelectorAll("[data-theme-toggle]");
+    var JH_name = JH_nameFor(JH_resolved);
     for (var JH_i = 0; JH_i < JH_buttons.length; JH_i++) {
-      JH_buttons[JH_i].setAttribute("aria-label", JH_nameFor(JH_mode));
-      JH_buttons[JH_i].title = JH_nameFor(JH_mode);
+      JH_buttons[JH_i].setAttribute("aria-label", JH_name);
+      JH_buttons[JH_i].title = JH_name;
     }
-    if (JH_fromUser) JH_flipLabels(JH_labelFor(JH_mode));
-    else JH_setLabels(JH_labelFor(JH_mode));
-    window.dispatchEvent(new CustomEvent("jh270-theme", { detail: { choice: JH_mode, theme: JH_resolved } }));
+    if (JH_fromUser) JH_flipLabels(JH_labelFor(JH_resolved));
+    else JH_setLabels(JH_labelFor(JH_resolved));
+    window.dispatchEvent(new CustomEvent("jh270-theme", { detail: { choice: JH_choice, theme: JH_resolved } }));
+  }
+
+  function JH_apply(JH_theme, JH_fromUser) {
+    var JH_locked = JH_savedChoice();
+    var JH_resolved;
+    if (JH_fromUser) {
+      JH_resolved = JH_theme === "dark" ? "dark" : "light";
+      JH_writeChoice(JH_resolved);
+      JH_locked = JH_resolved;
+    } else if (JH_locked) {
+      JH_resolved = JH_locked;
+    } else {
+      JH_resolved = JH_theme === "dark" ? "dark" : "light";
+    }
+    JH_paintChrome(JH_resolved, JH_locked || "system", JH_fromUser);
   }
 
   function JH_cycle() {
-    var JH_current = JH_savedChoice() || "system";
-    var JH_index = JH_order.indexOf(JH_current);
-    if (JH_index < 0) JH_index = 0;
-    JH_apply(JH_order[(JH_index + 1) % JH_order.length], true);
+    var JH_current = JH_root.dataset.theme === "dark" ? "dark" : "light";
+    JH_apply(JH_current === "dark" ? "light" : "dark", true);
   }
 
-  JH_apply(JH_savedChoice() || "system", false);
+  JH_apply(JH_savedChoice() || JH_systemTheme(), false);
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-    if ((JH_savedChoice() || "system") === "system") JH_apply("system", false);
+    if (!JH_savedChoice()) JH_apply(JH_systemTheme(), false);
   });
 
   document.addEventListener("click", function (JH_event) {
@@ -128,7 +135,10 @@
     get theme() {
       return JH_root.dataset.theme === "dark" ? "dark" : "light";
     },
-    set: function (JH_next) { JH_apply(JH_next, true); },
+    set: function (JH_next) {
+      if (JH_next !== "light" && JH_next !== "dark") return;
+      JH_apply(JH_next, true);
+    },
     cycle: JH_cycle
   };
 })();

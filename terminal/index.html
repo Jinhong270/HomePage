@@ -7,12 +7,15 @@
     (function () {
       var JH_saved = "";
       try { JH_saved = localStorage.getItem("jh270-theme") || ""; } catch (JH_err) {}
+      if (JH_saved !== "light" && JH_saved !== "dark") {
+        JH_saved = "";
+        try { localStorage.removeItem("jh270-theme"); } catch (JH_err) {}
+      }
       var JH_dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var JH_choice = JH_saved === "light" || JH_saved === "dark" || JH_saved === "system" ? JH_saved : "system";
-      var JH_theme = JH_choice === "light" || JH_choice === "dark" ? JH_choice : (JH_dark ? "dark" : "light");
+      var JH_theme = JH_saved || (JH_dark ? "dark" : "light");
       var JH_root = document.documentElement;
       JH_root.dataset.theme = JH_theme;
-      JH_root.dataset.themeChoice = JH_choice;
+      JH_root.dataset.themeChoice = JH_saved || "system";
     })();
   </script>
   <title>Terminal — Jinhong270</title>
@@ -24,8 +27,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/site.css?v=4">
-  <link rel="stylesheet" href="../css/terminal.css?v=4">
+  <link rel="stylesheet" href="../css/site.css?v=5">
+  <link rel="stylesheet" href="../css/terminal.css?v=5">
 </head>
 <body class="page-terminal">
   <a class="skip" href="#cmd">Skip to the prompt</a>
@@ -38,9 +41,21 @@
       <p class="term-id">guest@jh270.com</p>
       <span class="term-spacer"></span>
       <a class="bar-btn" href="../">Home</a>
-      <button type="button" class="theme-btn" data-theme-toggle aria-label="Theme follows the system. Activate to switch.">
-        <span class="theme-swap" data-theme-label>SYS</span>
+      <button type="button" class="theme-btn" data-theme-toggle aria-label="Theme is light. Activate to switch to dark.">
+        <span class="theme-swap" data-theme-label>DAY</span>
       </button>
+      <script>
+        (function () {
+          var JH_dark = document.documentElement.dataset.theme === "dark";
+          var JH_label = document.querySelector("[data-theme-label]");
+          var JH_button = document.querySelector("[data-theme-toggle]");
+          var JH_name = JH_dark ? "Theme is dark. Activate to switch to light." : "Theme is light. Activate to switch to dark.";
+          if (JH_label) JH_label.textContent = JH_dark ? "NIGHT" : "DAY";
+          if (!JH_button) return;
+          JH_button.setAttribute("aria-label", JH_name);
+          JH_button.title = JH_name;
+        })();
+      </script>
     </header>
     <div id="screen" class="screen" role="log"></div>
     <div id="stage" class="stage" hidden>
@@ -64,9 +79,9 @@
       <span id="queue-count"></span>
     </footer>
   </main>
-  <script src="../js/theme.js?v=4"></script>
-  <script src="../js/github-data.js?v=4"></script>
-  <script src="../js/commands.js?v=4"></script>
-  <script src="../js/terminal.js?v=4"></script>
+  <script src="../js/theme.js?v=5"></script>
+  <script src="../js/github-data.js?v=5"></script>
+  <script src="../js/commands.js?v=5"></script>
+  <script src="../js/terminal.js?v=5"></script>
 </body>
 </html>
