@@ -8,10 +8,11 @@
       var saved = "";
       try { saved = localStorage.getItem("jh270-theme") || ""; } catch (err) {}
       var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var theme = saved === "light" || saved === "dark" ? saved : (dark ? "dark" : "light");
+      var choice = saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+      var theme = choice === "light" || choice === "dark" ? choice : (dark ? "dark" : "light");
       var root = document.documentElement;
       root.dataset.theme = theme;
-      root.dataset.themeChoice = theme;
+      root.dataset.themeChoice = choice;
     })();
   </script>
   <title>Jinhong270 — jh270.com</title>
@@ -27,7 +28,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/site.css">
+  <link rel="stylesheet" href="css/site.css?v=4">
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
@@ -42,11 +43,8 @@
         <a href="#github">GitHub</a>
         <a href="terminal/">Terminal</a>
       </nav>
-      <button type="button" class="theme-btn" data-theme-toggle aria-label="Switch between day and night.">
-        <span class="theme-swap" data-theme-label>
-          <span class="theme-face theme-face-day">DAY</span>
-          <span class="theme-face theme-face-night">NIGHT</span>
-        </span>
+      <button type="button" class="theme-btn" data-theme-toggle aria-label="Theme follows the system. Activate to switch.">
+        <span class="theme-swap" data-theme-label>SYS</span>
       </button>
     </div>
   </header>
@@ -147,9 +145,9 @@
       <span id="clock">--:--:--</span>
     </div>
   </footer>
-  <script src="js/theme.js"></script>
-  <script src="js/github-data.js"></script>
-  <script src="js/github-ui.js"></script>
-  <script src="js/home.js"></script>
+  <script src="js/theme.js?v=4"></script>
+  <script src="js/github-data.js?v=4"></script>
+  <script src="js/github-ui.js?v=4"></script>
+  <script src="js/home.js?v=4"></script>
 </body>
 </html>

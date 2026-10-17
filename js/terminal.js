@@ -331,9 +331,10 @@
     var options = [];
     if (name === "theme") {
       options = [
+        ["system", "follow this device"],
         ["light", "warm paper"],
         ["dark", "phosphor lab"],
-        ["next", "the other one"]
+        ["next", "cycle the choice"]
       ];
     } else if (name === "game") {
       options = [
