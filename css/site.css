@@ -429,6 +429,14 @@ h1 {
   color: var(--text);
 }
 
+.card .card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-top: 1rem;
+  color: var(--text);
+}
+
 .grid-3, .repo-grid, .stat-grid {
   display: grid;
   gap: 0.8rem;

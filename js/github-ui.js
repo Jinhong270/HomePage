@@ -144,8 +144,8 @@
         var about = api.blurb(repo);
         var hay = (repo.name + " " + about + " " + language).toLowerCase();
         if (needle && hay.indexOf(needle) === -1) return;
-        var card = link(repo.html_url, "repo", "");
-        card.textContent = "";
+        var card = el("a", "repo");
+        card.href = "repo/?name=" + encodeURIComponent(repo.name);
         var top = el("div", "repo-top");
         top.appendChild(el("h3", "", repo.name));
         top.appendChild(el("span", "lang", language));
