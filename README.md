@@ -8,6 +8,8 @@ Retro homepage for Jinhong270.
 
 A first visit uses the device's light or dark setting. The control at the top right switches between day and night.
 
+Embedded games are sized by the visible game panel, not by the screen, and no size is put in the game URL. Once a game has loaded, and again whenever the panel changes, such as rotating a phone or entering full screen, the terminal sends the panel size in CSS pixels with `postMessage`, shaped `{ type: "jh270:viewport", game, width, height, dpr }`. A game can ask for the current size at any time by posting `{ type: "jh270:viewport-request" }` to its parent. Inside the panel, a game's own `innerWidth` and `innerHeight` already report the same size.
+
 GitHub data is read by the visitor's browser from `api.github.com` and kept for five minutes in that tab's session storage. GitHub allows 60 unauthenticated requests per hour for each IP address. When that limit is reached, the page says when it resets.
 
 Serve this folder as a static site, or open `index.html` in a browser.

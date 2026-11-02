@@ -177,6 +177,34 @@
   border-top: 1px solid var(--line);
 }
 
+.md .table-wrap {
+  margin: 0 0 0.9rem;
+  overflow-x: auto;
+}
+
+.md table {
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  overflow-wrap: normal;
+}
+
+.md th,
+.md td {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.md th {
+  background: var(--bg-sink);
+  font-weight: 600;
+}
+
+.md tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--bg-sink) 40%, transparent);
+}
+
 .commits {
   margin: 0;
   padding: 0;
@@ -330,6 +358,8 @@ html.theme-anim .files,
 html.theme-anim .status,
 html.theme-anim .diff,
 html.theme-anim .diff-lines span,
+html.theme-anim .md th,
+html.theme-anim .md td,
 html.theme-anim .md code,
 html.theme-anim .md pre {
   transition: background-color 0.48s ease, color 0.48s ease, border-color 0.48s ease, box-shadow 0.48s ease;
@@ -354,6 +384,8 @@ html.theme-anim .md pre {
   html.theme-anim .status,
   html.theme-anim .diff,
   html.theme-anim .diff-lines span,
+  html.theme-anim .md th,
+  html.theme-anim .md td,
   html.theme-anim .md code,
   html.theme-anim .md pre {
     transition: none;

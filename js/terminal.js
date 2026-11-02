@@ -24,6 +24,9 @@
   var suggestions = [];
   var selected = 0;
   var pinned = true;
+  var activeGame = null;
+  var sentKey = "";
+  var sizeTick = 0;
 
   function paintThemeStatus() {
     if (!themeLabel || !window.JH270Theme) return;
@@ -151,9 +154,48 @@
     stick(true);
   }
 
+  function visibleSize() {
+    return {
+      width: Math.max(1, frame.clientWidth),
+      height: Math.max(1, frame.clientHeight),
+      dpr: Math.round((window.devicePixelRatio || 1) * 1000) / 1000
+    };
+  }
+
+  function sizeKey(size) {
+    return size.width + "x" + size.height + "@" + size.dpr;
+  }
+
+  function sendViewport(force) {
+    if (!activeGame || !stage || stage.hidden || !frame.contentWindow) return;
+    var size = visibleSize();
+    var key = sizeKey(size);
+    if (!force && key === sentKey) return;
+    sentKey = key;
+    try {
+      frame.contentWindow.postMessage({
+        type: "jh270:viewport",
+        game: activeGame.id,
+        width: size.width,
+        height: size.height,
+        dpr: size.dpr
+      }, activeGame.origin);
+    } catch (err) {}
+  }
+
+  function queueViewport() {
+    if (sizeTick || !activeGame) return;
+    sizeTick = window.requestAnimationFrame(function () {
+      sizeTick = 0;
+      sendViewport(false);
+    });
+  }
+
   function closeStage(silent) {
     if (!stage || stage.hidden) return;
     var title = stageTitle ? stageTitle.textContent : "game";
+    activeGame = null;
+    sentKey = "";
     stage.hidden = true;
     screen.hidden = false;
     if (frame) frame.src = "about:blank";
@@ -175,6 +217,8 @@
     stage.hidden = false;
     if (stageTitle) stageTitle.textContent = game.title;
     frame.title = game.title;
+    activeGame = { id: id, origin: new URL(game.url).origin };
+    sentKey = "";
     frame.src = game.url;
     window.setTimeout(function () {
       try {
@@ -551,9 +595,21 @@
   if (frame) {
     frame.addEventListener("load", function () {
       if (stage.hidden || !frame.getAttribute("src") || frame.src.indexOf("about:blank") !== -1) return;
+      sendViewport(true);
       try { frame.focus(); } catch (err) {}
     });
   }
+
+  window.addEventListener("message", function (event) {
+    if (!activeGame || event.source !== frame.contentWindow || event.origin !== activeGame.origin) return;
+    var data = event.data;
+    if (data && data.type === "jh270:viewport-request") sendViewport(true);
+  });
+
+  if (frame && window.ResizeObserver) new ResizeObserver(queueViewport).observe(frame);
+  window.addEventListener("resize", queueViewport);
+  document.addEventListener("fullscreenchange", queueViewport);
+  document.addEventListener("webkitfullscreenchange", queueViewport);
 
   window.addEventListener("jh270-theme", paintThemeStatus);
   paintThemeStatus();

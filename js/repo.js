@@ -142,6 +142,84 @@
     return list;
   }
 
+  function splitRow(line) {
+    var text = line.trim();
+    var cells = [];
+    var cell = "";
+    var cut = -1;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (ch === "\\" && text.charAt(i + 1) === "|") {
+        cell += "|";
+        i += 1;
+      } else if (ch === "|") {
+        cells.push(cell);
+        cell = "";
+        cut = i;
+      } else {
+        cell += ch;
+      }
+    }
+    cells.push(cell);
+    if (text.charAt(0) === "|") cells.shift();
+    if (cut === text.length - 1) cells.pop();
+    return cells.map(function (item) { return item.trim(); });
+  }
+
+  function alignments(line) {
+    if (line.indexOf("|") === -1) return null;
+    var parts = splitRow(line);
+    if (!parts.length) return null;
+    var aligns = [];
+    for (var i = 0; i < parts.length; i++) {
+      var m = /^(:?)-+(:?)$/.exec(parts[i]);
+      if (!m) return null;
+      aligns.push(m[1] && m[2] ? "center" : m[2] ? "right" : m[1] ? "left" : "");
+    }
+    return aligns;
+  }
+
+  function tableStart(lines, index) {
+    if (index + 1 >= lines.length || lines[index].indexOf("|") === -1) return null;
+    var aligns = alignments(lines[index + 1]);
+    if (!aligns) return null;
+    var head = splitRow(lines[index]);
+    if (head.length !== aligns.length) return null;
+    return { head: head, aligns: aligns };
+  }
+
+  function tableNode(grid, rows, base) {
+    var wrap = el("div", "table-wrap");
+    var table = el("table");
+    var thead = el("thead");
+    var headRow = el("tr");
+    grid.head.forEach(function (text, index) {
+      var th = el("th");
+      th.setAttribute("scope", "col");
+      if (grid.aligns[index]) th.style.textAlign = grid.aligns[index];
+      inline(th, text, base);
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+    if (rows.length) {
+      var tbody = el("tbody");
+      rows.forEach(function (cells) {
+        var tr = el("tr");
+        for (var c = 0; c < grid.head.length; c++) {
+          var td = el("td");
+          if (grid.aligns[c]) td.style.textAlign = grid.aligns[c];
+          inline(td, cells[c] || "", base);
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+    }
+    wrap.appendChild(table);
+    return wrap;
+  }
+
   function markdown(source, base) {
     var root = el("div", "md");
     var lines = source.replace(/<!-{2}[\s\S]*?-{2}>/g, "").replace(/\r\n?/g, "\n").split("\n");
@@ -159,6 +237,7 @@
     while (i < lines.length) {
       var line = lines[i];
       var m;
+      var grid;
       if (/^\s*(```|~~~)/.test(line)) {
         flush();
         var fence = line.trim().slice(0, 3);
@@ -214,17 +293,16 @@
         }
         i -= 1;
         root.appendChild(listNode(items, Boolean(first), first ? first[1] : "", base));
-      } else if (/^\s*\|/.test(line)) {
+      } else if ((grid = tableStart(lines, i))) {
         flush();
         var rows = [];
-        while (i < lines.length && /^\s*\|/.test(lines[i])) {
-          rows.push(lines[i].trim());
+        i += 2;
+        while (i < lines.length && lines[i].trim() && lines[i].indexOf("|") !== -1) {
+          rows.push(splitRow(lines[i]));
           i += 1;
         }
         i -= 1;
-        var table = el("pre");
-        table.appendChild(el("code", "", rows.join("\n")));
-        root.appendChild(table);
+        root.appendChild(tableNode(grid, rows, base));
       } else {
         para.push(line.trim());
       }
