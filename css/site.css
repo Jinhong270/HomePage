@@ -191,7 +191,6 @@ html.theme-anim body,
 html.theme-anim .top,
 html.theme-anim .monitor,
 html.theme-anim .feature,
-html.theme-anim .card,
 html.theme-anim .github-mount,
 html.theme-anim .statusline,
 html.theme-anim .handles a,
@@ -204,7 +203,6 @@ html.theme-anim .screen,
 html.theme-anim .composer,
 html.theme-anim .term-status,
 html.theme-anim .menu,
-html.theme-anim .stage-bar,
 html.theme-anim .line,
 html.theme-anim .pre,
 html.theme-anim .composer label,
@@ -402,7 +400,7 @@ h1 {
 
 .section-head p { margin: 0; color: var(--muted); max-width: 26rem; }
 
-.feature, .card, .github-mount {
+.feature, .github-mount {
   border: 1px solid var(--line);
   background: var(--card);
   box-shadow: var(--shadow);
@@ -419,9 +417,9 @@ h1 {
   font-size: 0.82rem;
 }
 
-.feature h3, .card h3 { margin: 0.7rem 0 0.45rem; font-size: 1.7rem; }
+.feature h3 { margin: 0.7rem 0 0.45rem; font-size: 1.7rem; }
 
-.feature p, .card p { margin: 0; color: var(--muted); }
+.feature p { margin: 0; color: var(--muted); }
 
 .text-link {
   display: inline-block;
@@ -429,32 +427,18 @@ h1 {
   color: var(--text);
 }
 
-.card .card-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.1rem;
-  margin-top: 1rem;
-  color: var(--text);
-}
-
-.grid-3, .repo-grid, .stat-grid {
+.repo-grid, .stat-grid {
   display: grid;
   gap: 0.8rem;
 }
 
-.grid-3 { margin-top: 0.8rem; }
-
-.card { padding: 1rem 1rem 1.1rem; }
-
-.card h3 { font-size: 1.25rem; }
-
-.card ul, .plain-list {
+.plain-list {
   margin: 0.8rem 0 0;
   padding: 0;
   list-style: none;
 }
 
-.card li + li, .plain-list li + li { margin-top: 0.3rem; }
+.plain-list li + li { margin-top: 0.3rem; }
 
 .keys {
   display: flex;
@@ -533,7 +517,7 @@ kbd {
   margin-bottom: 0.9rem;
 }
 
-.tools input, .tools button, .choice, .stage-bar button {
+.tools input, .tools button, .choice {
   border: 1px solid var(--line-strong);
   background: var(--bg-raise);
   color: var(--text);
@@ -543,9 +527,9 @@ kbd {
 
 .tools input { min-width: min(100%, 16rem); flex: 1; }
 
-.tools button, .choice, .stage-bar button { cursor: pointer; }
+.tools button, .choice { cursor: pointer; }
 
-.tools button[aria-pressed="true"], .choice:hover, .stage-bar button:hover {
+.tools button[aria-pressed="true"], .choice:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -614,7 +598,6 @@ kbd {
 
 @media (min-width: 960px) {
   .hero { grid-template-columns: 1.15fr 0.85fr; align-items: stretch; }
-  .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 1040px) {
@@ -638,7 +621,6 @@ kbd {
   html.theme-anim .top,
   html.theme-anim .monitor,
   html.theme-anim .feature,
-  html.theme-anim .card,
   html.theme-anim .github-mount,
   html.theme-anim .statusline,
   html.theme-anim .handles a,
@@ -651,7 +633,6 @@ kbd {
   html.theme-anim .composer,
   html.theme-anim .term-status,
   html.theme-anim .menu,
-  html.theme-anim .stage-bar,
   html.theme-anim .line,
   html.theme-anim .pre,
   html.theme-anim .composer label,

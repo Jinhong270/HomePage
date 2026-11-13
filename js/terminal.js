@@ -1,8 +1,5 @@
 (function () {
   var screen = document.getElementById("screen");
-  var stage = document.getElementById("stage");
-  var stageTitle = document.getElementById("stage-title");
-  var frame = document.getElementById("stage-frame");
   var menu = document.getElementById("menu");
   var form = document.getElementById("composer");
   var input = document.getElementById("cmd");
@@ -24,9 +21,18 @@
   var suggestions = [];
   var selected = 0;
   var pinned = true;
-  var activeGame = null;
-  var sentKey = "";
-  var sizeTick = 0;
+  var MAX_OUTPUT = 400;
+  var MAX_HISTORY = 100;
+  var MAX_QUEUE = 24;
+
+  function appendOutput(node) {
+    var previousTop = screen.scrollTop;
+    screen.appendChild(node);
+    if (screen.children.length <= MAX_OUTPUT) return;
+    var previousHeight = screen.scrollHeight;
+    while (screen.children.length > MAX_OUTPUT) screen.firstElementChild.remove();
+    if (!pinned) screen.scrollTop = previousTop + screen.scrollHeight - previousHeight;
+  }
 
   function paintThemeStatus() {
     if (!themeLabel || !window.JH270Theme) return;
@@ -74,16 +80,16 @@
           resolve();
           return;
         }
-        var ch = text.charAt(i);
-        node.textContent += ch;
-        i += 1;
+        var chunk = text.slice(i, i + 2);
+        node.textContent += chunk;
+        i += chunk.length;
         stick();
         if (i >= text.length) {
           finish();
           resolve();
           return;
         }
-        window.setTimeout(step, ch === "\n" ? 18 : 8);
+        window.setTimeout(step, chunk.indexOf("\n") !== -1 ? 24 : 16);
       };
       step();
     });
@@ -96,10 +102,10 @@
     node.className = "line" + (tone ? " line-" + tone : "");
     if (!text) {
       node.classList.add("line-gap");
-      screen.appendChild(node);
+      appendOutput(node);
       return Promise.resolve();
     }
-    screen.appendChild(node);
+    appendOutput(node);
     return typeInto(node, text, token);
   }
 
@@ -108,7 +114,7 @@
     var token = epoch;
     var node = document.createElement("pre");
     node.className = "pre";
-    screen.appendChild(node);
+    appendOutput(node);
     return typeInto(node, text, token);
   }
 
@@ -127,7 +133,7 @@
       anchor.textContent = label || safe;
       node.appendChild(anchor);
     }
-    screen.appendChild(node);
+    appendOutput(node);
     stick();
   }
 
@@ -150,84 +156,15 @@
       }
       wrap.appendChild(button);
     });
-    screen.appendChild(wrap);
+    appendOutput(wrap);
     stick(true);
   }
 
-  function visibleSize() {
-    return {
-      width: Math.max(1, frame.clientWidth),
-      height: Math.max(1, frame.clientHeight),
-      dpr: Math.round((window.devicePixelRatio || 1) * 1000) / 1000
-    };
-  }
-
-  function sizeKey(size) {
-    return size.width + "x" + size.height + "@" + size.dpr;
-  }
-
-  function sendViewport(force) {
-    if (!activeGame || !stage || stage.hidden || !frame.contentWindow) return;
-    var size = visibleSize();
-    var key = sizeKey(size);
-    if (!force && key === sentKey) return;
-    sentKey = key;
-    try {
-      frame.contentWindow.postMessage({
-        type: "jh270:viewport",
-        game: activeGame.id,
-        width: size.width,
-        height: size.height,
-        dpr: size.dpr
-      }, activeGame.origin);
-    } catch (err) {}
-  }
-
-  function queueViewport() {
-    if (sizeTick || !activeGame) return;
-    sizeTick = window.requestAnimationFrame(function () {
-      sizeTick = 0;
-      sendViewport(false);
-    });
-  }
-
-  function closeStage(silent) {
-    if (!stage || stage.hidden) return;
-    var title = stageTitle ? stageTitle.textContent : "game";
-    activeGame = null;
-    sentKey = "";
-    stage.hidden = true;
-    screen.hidden = false;
-    if (frame) frame.src = "about:blank";
-    if (!silent) {
-      var node = document.createElement("p");
-      node.className = "line line-dim";
-      node.textContent = "Closed " + title + ".";
-      screen.appendChild(node);
-      stick(true);
-    }
-    input.focus();
-  }
-
-  function launch(id) {
-    if (canceled || !stage || !frame) return;
-    var game = registry.games[id];
-    if (!game) return;
-    screen.hidden = true;
-    stage.hidden = false;
-    if (stageTitle) stageTitle.textContent = game.title;
-    frame.title = game.title;
-    activeGame = { id: id, origin: new URL(game.url).origin };
-    sentKey = "";
-    frame.src = game.url;
-    window.setTimeout(function () {
-      try {
-        if (frame.contentWindow) frame.contentWindow.focus();
-        else frame.focus();
-      } catch (err) {
-        frame.focus();
-      }
-    }, 250);
+  function launch() {
+    if (canceled) return;
+    if (!window.JH270Arcade) throw new Error("The game window could not load. Refresh the page and try again.");
+    hideMenu();
+    return window.JH270Arcade.open();
   }
 
   function clearScreen() {
@@ -240,7 +177,8 @@
     skip = true;
     stopMode = mode;
     if (mode === "clear") {
-      closeStage(true);
+      queue.length = 0;
+      updateQueue();
       clearScreen();
     }
   }
@@ -281,7 +219,7 @@
     prompt.textContent = "guest@jh270.com:~$ ";
     node.appendChild(prompt);
     node.appendChild(document.createTextNode(raw));
-    screen.appendChild(node);
+    appendOutput(node);
     stick(true);
   }
 
@@ -306,7 +244,6 @@
     canceled = false;
     skip = false;
     stopMode = "";
-    if (stage && !stage.hidden) closeStage(true);
     echo(raw);
     try {
       await dispatch(raw);
@@ -333,11 +270,16 @@
   }
 
   function submit(raw) {
-    var trimmed = String(raw || "").trim();
-    if (!trimmed) return;
+    var trimmed = String(raw || "").trim().slice(0, 512);
+    if (!trimmed) return false;
+    if (queue.length >= MAX_QUEUE) {
+      if (queueLabel) queueLabel.textContent = "Queue full. Wait for a reply.";
+      return false;
+    }
     queue.push(trimmed);
     updateQueue();
     if (!booting) pump();
+    return true;
   }
 
   function hideMenu() {
@@ -345,6 +287,7 @@
     menu.hidden = true;
     menu.replaceChildren();
     input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
   }
 
   function optionList(value) {
@@ -380,17 +323,13 @@
         ["next", "the other one"]
       ];
     } else if (name === "game") {
-      options = [
-        ["2048", registry.games["2048"].about],
-        ["snake", registry.games.snake.about],
-        ["tetris", registry.games.tetris.about]
-      ];
+      options = [["echo", "ECHO COURIER · 270"]];
     } else if (name === "cat") {
       options = Object.keys(registry.files).map(function (file) { return [file, "guest file"]; });
     } else if (name === "man") {
       options = list.map(function (cmd) { return [cmd.name, cmd.summary]; });
     } else if (name === "open") {
-      options = ["github", "x", "hf", "toolbox", "snake", "2048", "tetris", "home"].map(function (place) {
+      options = ["github", "x", "hf", "toolbox", "echo", "home"].map(function (place) {
         return [place, "known link"];
       });
     } else if (name === "repo" && window.JH270GitHub && window.JH270GitHub.peek()) {
@@ -412,14 +351,18 @@
     if (!suggestions.length || document.activeElement !== input) {
       menu.hidden = true;
       input.setAttribute("aria-expanded", "false");
+      input.removeAttribute("aria-activedescendant");
       return;
     }
     if (selected >= suggestions.length) selected = 0;
     menu.hidden = false;
     input.setAttribute("aria-expanded", "true");
+    input.setAttribute("aria-activedescendant", "command-option-" + selected);
     suggestions.forEach(function (item, index) {
       var button = document.createElement("button");
       button.type = "button";
+      button.id = "command-option-" + index;
+      button.tabIndex = -1;
       button.setAttribute("role", "option");
       button.setAttribute("aria-selected", index === selected ? "true" : "false");
       var title = document.createElement("span");
@@ -428,9 +371,12 @@
       detail.textContent = item.detail || "";
       button.appendChild(title);
       button.appendChild(detail);
-      button.addEventListener("mousedown", function (event) {
+      button.addEventListener("pointerdown", function (event) {
         event.preventDefault();
+      });
+      button.addEventListener("click", function () {
         accept(item.insert);
+        input.focus();
       });
       menu.appendChild(button);
     });
@@ -445,7 +391,7 @@
   }
 
   function valueToRun(typed) {
-    if (!suggestions.length || menu.hidden) return typed;
+    if (!suggestions.length || !menu || menu.hidden) return typed;
     var chosen = suggestions[selected] || suggestions[0];
     if (typed.indexOf(" ") === -1) return chosen.insert;
     if (chosen.insert.indexOf(typed) === 0) return chosen.insert;
@@ -453,12 +399,17 @@
   }
 
   function accept(value) {
-    var trimmed = String(value || "").trim();
+    var trimmed = String(value || "").trim().slice(0, 512);
+    if (queue.length >= MAX_QUEUE) {
+      if (queueLabel) queueLabel.textContent = "Queue full. Wait for a reply.";
+      return;
+    }
     input.value = "";
     historyIndex = commandHistory.length;
     hideMenu();
     if (!trimmed) return;
     commandHistory.push(trimmed);
+    if (commandHistory.length > MAX_HISTORY) commandHistory.shift();
     historyIndex = commandHistory.length;
     submit(trimmed);
   }
@@ -529,14 +480,10 @@
   });
 
   document.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented || (event.target.closest && event.target.closest("dialog"))) return;
     var key = event.key.toLowerCase();
     if (event.key === "Escape") {
       if (menu && !menu.hidden) return;
-      if (stage && !stage.hidden) {
-        event.preventDefault();
-        closeStage(false);
-        return;
-      }
       skip = true;
       return;
     }
@@ -563,7 +510,7 @@
       var node = document.createElement("p");
       node.className = "line line-warn";
       node.textContent = "^C " + typed;
-      screen.appendChild(node);
+      appendOutput(node);
       stick(true);
     }
   });
@@ -579,38 +526,6 @@
     if (!selection) input.focus();
   });
 
-  var closeButton = document.getElementById("stage-close");
-  var fullButton = document.getElementById("stage-full");
-  if (closeButton) closeButton.addEventListener("click", function () { closeStage(false); });
-  if (fullButton) {
-    fullButton.addEventListener("click", function () {
-      var request = stage.requestFullscreen || stage.webkitRequestFullscreen;
-      if (!request) {
-        fullButton.textContent = "Unavailable";
-        return;
-      }
-      request.call(stage);
-    });
-  }
-  if (frame) {
-    frame.addEventListener("load", function () {
-      if (stage.hidden || !frame.getAttribute("src") || frame.src.indexOf("about:blank") !== -1) return;
-      sendViewport(true);
-      try { frame.focus(); } catch (err) {}
-    });
-  }
-
-  window.addEventListener("message", function (event) {
-    if (!activeGame || event.source !== frame.contentWindow || event.origin !== activeGame.origin) return;
-    var data = event.data;
-    if (data && data.type === "jh270:viewport-request") sendViewport(true);
-  });
-
-  if (frame && window.ResizeObserver) new ResizeObserver(queueViewport).observe(frame);
-  window.addEventListener("resize", queueViewport);
-  document.addEventListener("fullscreenchange", queueViewport);
-  document.addEventListener("webkitfullscreenchange", queueViewport);
-
   window.addEventListener("jh270-theme", paintThemeStatus);
   paintThemeStatus();
 
@@ -625,7 +540,7 @@
     "  /help      command list",
     "  /about     who Jinhong270 is",
     "  /repos     public GitHub repositories",
-    "  /game      2048, Snake, Tetris",
+    "  /game      ECHO COURIER",
     "  /theme     light or dark",
     ""
   ];
@@ -654,7 +569,7 @@
     if (runAfter) queue.unshift(runAfter);
     updateQueue();
     pump();
-    if (!stage || stage.hidden) input.focus();
+    if (!document.querySelector("dialog[open]")) input.focus();
   }
 
   boot();

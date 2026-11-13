@@ -1,15 +1,43 @@
 # jh270.com
 
-Retro homepage for Jinhong270.
+Retro homepage for Jinhong270. Plain HTML, CSS, and JavaScript; no runtime dependencies or build step.
 
-- `/` introduces the work and, in the browser, reads the public GitHub profile. Each repository card opens its own page on this site.
+- `/` introduces the work and displays public GitHub repositories. The featured ECHO COURIER card opens a game window directly inside the homepage. Other repository cards open their own pages on this site.
 - `/repo/?name=<repository>` shows one public repository without leaving the site: details, languages, README, the commit list, and every commit's changed files. The link at the top, GitHub icon plus `Jinhong270/<repository>`, is the way out to GitHub.
-- `/terminal/` is a guest shell for `guest@jh270.com`. Commands are printed, not executed. `/game` embeds Snake, 2048, and Tetris.
+- `/terminal/` is a guest shell for `guest@jh270.com`. Commands are printed, not executed. `/game` or `/game echo` opens the same ECHO COURIER window.
 
-A first visit uses the device's light or dark setting. The control at the top right switches between day and night.
+A first visit uses the device's light or dark setting. The control at the top right switches between day and night. All pages share the same theme initialization.
 
-Embedded games are sized by the visible game panel, not by the screen, and no size is put in the game URL. Once a game has loaded, and again whenever the panel changes, such as rotating a phone or entering full screen, the terminal sends the panel size in CSS pixels with `postMessage`, shaped `{ type: "jh270:viewport", game, width, height, dpr }`. A game can ask for the current size at any time by posting `{ type: "jh270:viewport-request" }` to its parent. Inside the panel, a game's own `innerWidth` and `innerHeight` already report the same size.
+## ECHO COURIER · 270
 
-GitHub data is read by the visitor's browser from `api.github.com` and kept for five minutes in that tab's session storage. GitHub allows 60 unauthenticated requests per hour for each IP address. When that limit is reached, the page says when it resets.
+A signal-rescue game built for this homepage. Your echo follows your exact route from 2.7 seconds ago. Swap back to it to sweep up signals along the connecting thread and stun pursuing glitches. Bring cargo to HOME: fuller deliveries earn more, and quick consecutive deliveries build a chain. Survive three 36-second sectors and choose an upgrade between them.
 
-Serve this folder as a static site, or open `index.html` in a browser.
+- Move with WASD, arrow keys, or by holding and dragging on the field.
+- Press Space or the Echo button to swap. Move away from your echo first.
+- Press P or Pause to pause; leaving the tab also pauses the game.
+- Use the window controls to enter full screen or close. Outside full screen, Escape closes the window and restores focus to its opener.
+- Your personal best stays in this browser's local storage. Storage being unavailable does not prevent play.
+
+The game loads only when opened. It uses local canvas rendering with a capped pixel ratio and adjusts to the visible arena. Closing the window releases animation frames, input listeners, and resize observation. Intro, pause, upgrade, and result screens do not run an animation loop. There are no embedded third-party games or game network requests.
+
+## Data and rendering
+
+The browser reads public GitHub data from `api.github.com` when the repository list approaches the viewport. Requests share in-flight work and use a five-minute session cache with a bounded memory cache. Repository lists and commit file details follow pagination. GitHub rate-limit errors show the reset time when provided; profile failures offer a retry. The playable project remains available if GitHub cannot load. Legacy arcade repositories are omitted from the homepage showcase; their GitHub repositories are unchanged.
+
+Repository search reuses card elements. README output is built as DOM text and safe links, with limits for very large documents. The home clock and boot animation stop while the page is hidden. Terminal output, history, and queued commands are bounded.
+
+## Local development
+
+Serve the folder with any static HTTP server, for example:
+
+```sh
+python -m http.server 4173 --bind 127.0.0.1
+```
+
+Open `http://127.0.0.1:4173/`. No installation is required to serve the site. Node.js 20 or newer runs the automated checks:
+
+```sh
+node --test
+```
+
+The tests cover GitHub caching, errors and pagination, game rules and lifecycle, and dialog loading and cleanup. Browser checks should cover homepage and terminal launch, keyboard and touch input, full screen, focus restoration, and portrait/landscape layouts.

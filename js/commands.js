@@ -1,22 +1,4 @@
 (function () {
-  var GAMES = {
-    "2048": {
-      title: "2048",
-      url: "https://game-2048.jh270.com",
-      about: "Slide and merge tiles on a 4×4 board."
-    },
-    snake: {
-      title: "Snake",
-      url: "https://game-snake.jh270.com",
-      about: "Eat, grow, and don't bite yourself."
-    },
-    tetris: {
-      title: "Tetris",
-      url: "https://game-tetris.jh270.com",
-      about: "Stack the falling pieces and clear lines."
-    }
-  };
-
   var FILES = {
     "about.txt": [
       "Jinhong270",
@@ -36,11 +18,11 @@
       "https://github.com/Jinhong270/AndroidToolBox"
     ].join("\n"),
     "games.txt": [
-      "2048     slide and merge      game-2048.jh270.com",
-      "snake    eat and grow         game-snake.jh270.com",
-      "tetris   stack and clear      game-tetris.jh270.com",
+      "ECHO COURIER · 270",
+      "Rescue lost signals with the echo of yourself from 2.7 seconds ago.",
       "",
-      "Open a cabinet with /game. The game stays embedded in this page."
+      "Open with /game, or from the homepage repository showcase.",
+      "A JH270 original. Close its window to return to this prompt."
     ].join("\n"),
     "readme.txt": [
       "Guest shell for jh270.com",
@@ -54,8 +36,8 @@
 
   var FORTUNES = [
     "A toolbox grows one tool at a time.",
-    "The snake only needs one more apple.",
-    "2048 is just 2, being patient.",
+    "Your echo remembers the way home.",
+    "A second chance is only 2.7 seconds behind you.",
     "Guest accounts still get the good games.",
     "Phosphor fades. The repository stays.",
     "Read the prompt before you trust the reply.",
@@ -87,14 +69,6 @@
     quit: "exit",
     cls: "clear"
   };
-
-  function gameBy(token) {
-    var key = String(token || "").trim().toLowerCase();
-    if (key === "1" || key === "2048") return "2048";
-    if (key === "2" || key === "snake") return "snake";
-    if (key === "3" || key === "tetris") return "tetris";
-    return "";
-  }
 
   function clean(text, limit) {
     return String(text || "").replace(/[\u0000-\u001f]+/g, " ").trim().slice(0, limit || 180);
@@ -165,27 +139,13 @@
   }
 
   async function gameCmd(args, ctx) {
-    if (!args.length) {
-      await ctx.printLine("Pick a cabinet. It stays embedded on this page.");
-      await ctx.printLine("");
-      ctx.choices([
-        { run: "/game 2048", title: "1   2048", detail: GAMES["2048"].about },
-        { run: "/game snake", title: "2   Snake", detail: GAMES.snake.about },
-        { run: "/game tetris", title: "3   Tetris", detail: GAMES.tetris.about }
-      ]);
-      await ctx.printLine("Usage: /game 2048 | snake | tetris");
+    var name = String(args[0] || "echo").toLowerCase();
+    if (args.length > 1 || (name !== "echo" && name !== "echo-courier")) {
+      await ctx.printLine("The only game is ECHO COURIER. Open it with /game or /game echo.", "warn");
       return;
     }
-    var id = gameBy(args[0]);
-    if (!id) {
-      await ctx.printLine("Unknown cabinet \"" + clean(args[0], 40) + "\". Choose 2048, snake, or tetris.", "warn");
-      return;
-    }
-    var game = GAMES[id];
-    await ctx.printLine("Opening " + game.title + " from " + game.url.replace("https://", "") + ".");
-    await ctx.printLine("The address bar stays here. Close, or press Esc, to return to the prompt.");
-    await ctx.printLine("Click the cabinet if the keys still type into the prompt.", "dim");
-    ctx.launch(id);
+    await ctx.printLine("Opening ECHO COURIER · 270.", "accent");
+    await ctx.launch();
   }
 
   async function readGithub(ctx) {
@@ -286,7 +246,7 @@
     await ctx.printLine("GitHub, X, and Hugging Face all use this name.");
     await ctx.printLine("");
     await ctx.printLine("The active project is AndroidToolBox, an Android SSH toolbox for remote files and a shell. More tools are planned.");
-    await ctx.printLine("There are also three arcade games and two AstrBot plugins.");
+    await ctx.printLine("There is also ECHO COURIER, an original game for this homepage, and two AstrBot plugins.");
     await ctx.printLine("");
     await ctx.printLine("This page is only the guest. The operator is Jinhong270.");
   }
@@ -311,10 +271,8 @@
     await ctx.printLine("");
     await ctx.printLine("AndroidToolBox — SSH files and a shell on Android. More tools are planned.");
     ctx.link("https://github.com/Jinhong270/AndroidToolBox");
-    await ctx.printLine("Snake, 2048, Tetris — play them here with /game.");
-    ctx.link("https://github.com/Jinhong270/Snake", "Snake");
-    ctx.link("https://github.com/Jinhong270/2048", "2048");
-    ctx.link("https://github.com/Jinhong270/Tetris", "Tetris");
+    await ctx.printLine("ECHO COURIER — rescue lost signals with your 2.7-second echo. Play with /game.");
+    ctx.link("https://github.com/Jinhong270/HomePage", "HomePage / ECHO COURIER");
     await ctx.printLine("astrbot_plugin_hfapibilibili — resolve a Bilibili link and download the video.");
     ctx.link("https://github.com/Jinhong270/astrbot_plugin_hfapibilibili");
     await ctx.printLine("astrbot_plugin_youdaolittlep — Youdao Xiao P chat, speech, and common questions.");
@@ -343,14 +301,12 @@
       hf: { href: "https://huggingface.co/Jinhong270", label: "Hugging Face" },
       huggingface: { href: "https://huggingface.co/Jinhong270", label: "Hugging Face" },
       toolbox: { href: "https://github.com/Jinhong270/AndroidToolBox", label: "AndroidToolBox" },
-      snake: { href: "https://github.com/Jinhong270/Snake", label: "Snake", note: "Play it here with /game snake." },
-      "2048": { href: "https://github.com/Jinhong270/2048", label: "2048", note: "Play it here with /game 2048." },
-      tetris: { href: "https://github.com/Jinhong270/Tetris", label: "Tetris", note: "Play it here with /game tetris." },
+      echo: { href: "https://github.com/Jinhong270/HomePage", label: "ECHO COURIER source", note: "Play ECHO COURIER here with /game." },
       home: { note: "You are in the guest shell. /exit returns to the homepage." }
     };
     var place = places[key];
     if (!place) {
-      await ctx.printLine("Usage: /open github | x | hf | toolbox | snake | 2048 | tetris | home", "warn");
+      await ctx.printLine("Usage: /open github | x | hf | toolbox | echo | home", "warn");
       return;
     }
     if (place.note) await ctx.printLine(place.note);
@@ -416,7 +372,7 @@
   async function creditsCmd(args, ctx) {
     await ctx.printLine("Static page. No server builds the reply.");
     await ctx.printLine("GitHub numbers come from api.github.com in this browser.");
-    await ctx.printLine("2048, Snake, and Tetris are embedded from their jh270.com cabinets.");
+    await ctx.printLine("ECHO COURIER is an original game built into this homepage.");
     await ctx.printLine("The person behind the name is Jinhong270.");
   }
 
@@ -524,7 +480,7 @@
     { name: "version", group: "Session", summary: "Show the terminal version", usage: "/version", detail: "jh270 terminal 1.0.", run: versionCmd },
     { name: "man", bare: true, group: "Session", summary: "Read one command", usage: "man <command>  or  /man <command>", detail: "Example: man game", run: manCmd },
     { name: "hint", group: "Session", summary: "Suggest a command", usage: "/hint", detail: "Picks one command at random.", run: hintCmd },
-    { name: "credits", group: "Session", summary: "Where the data and games come from", usage: "/credits", detail: "Client-side GitHub reads, and embedded cabinets.", run: creditsCmd },
+    { name: "credits", group: "Session", summary: "Where the data and game come from", usage: "/credits", detail: "Client-side GitHub reads and the original ECHO COURIER game.", run: creditsCmd },
     { name: "exit", bare: true, group: "Session", summary: "Return to the homepage", usage: "exit  or  /exit", detail: "Leaves /terminal and opens the homepage.", run: exitCmd },
     { name: "about", group: "Profile", summary: "Who Jinhong270 is", usage: "/about", detail: "Short introduction. The handles match on GitHub, X, and Hugging Face.", run: aboutCmd },
     { name: "now", group: "Profile", summary: "What is being built", usage: "/now", detail: "The active project is AndroidToolBox.", run: nowCmd },
@@ -537,11 +493,11 @@
     { name: "github", group: "Profile", summary: "Print the GitHub profile link", usage: "/github", detail: "https://github.com/Jinhong270", run: profileLink("https://github.com/Jinhong270", "GitHub  @Jinhong270") },
     { name: "x", group: "Profile", summary: "Print the X profile link", usage: "/x", detail: "https://x.com/Jinhong270", run: profileLink("https://x.com/Jinhong270", "X  @Jinhong270") },
     { name: "hf", group: "Profile", summary: "Print the Hugging Face profile link", usage: "/hf", detail: "https://huggingface.co/Jinhong270", run: profileLink("https://huggingface.co/Jinhong270", "Hugging Face  @Jinhong270") },
-    { name: "open", group: "Profile", summary: "Print a known link", usage: "/open github | x | hf | toolbox | snake | 2048 | tetris | home", detail: "Prints a link. It does not leave this page by itself.", run: openCmd },
+    { name: "open", group: "Profile", summary: "Print a known link", usage: "/open github | x | hf | toolbox | echo | home", detail: "Prints a link. It does not leave this page by itself.", run: openCmd },
     { name: "ls", bare: true, group: "Files", summary: "List the guest files", usage: "ls  or  /ls", detail: "about.txt, now.txt, games.txt, and readme.txt.", run: lsCmd },
     { name: "cat", bare: true, group: "Files", summary: "Print a guest file", usage: "cat <file>  or  /cat <file>", detail: "Try cat now.txt", run: catCmd },
     { name: "echo", bare: true, group: "Files", summary: "Print the text you type", usage: "echo <text>  or  /echo <text>", detail: "Prints the text back. It does not evaluate it.", run: echoCmd },
-    { name: "game", group: "Play", summary: "Embed 2048, Snake, or Tetris", usage: "/game [2048|snake|tetris]", detail: "The cabinet loads inside this page from game-2048, game-snake, or game-tetris on jh270.com.", run: gameCmd },
+    { name: "game", group: "Play", summary: "Open ECHO COURIER", usage: "/game [echo]", detail: "Rescue signals with your 2.7-second echo. Opens in a window on this page; also available from the homepage repository showcase.", run: gameCmd },
     { name: "banner", group: "Play", summary: "Print the JH270 mark", usage: "/banner", detail: "A small text mark for the guest prompt.", run: bannerCmd },
     { name: "fortune", group: "Play", summary: "Print a short line", usage: "/fortune", detail: "One line, chosen on this device.", run: fortuneCmd },
     { name: "ping", bare: true, group: "Play", summary: "Pretend to ping a host", usage: "ping [host]  or  /ping [host]", detail: "The numbers are printed locally. No packet is sent.", run: pingCmd },
@@ -551,8 +507,6 @@
   window.JH270Commands = {
     list: commands,
     files: FILES,
-    games: GAMES,
-    gameBy: gameBy,
     find: find,
     isBare: isBare
   };

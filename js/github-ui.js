@@ -37,8 +37,8 @@
 
   function draw(data) {
     var user = data.user;
-    var repos = data.repos;
-    var stars = repos.reduce(function (sum, repo) { return sum + (repo.stargazers_count || 0); }, 0);
+    var repos = data.repos.filter(function (repo) { return !/^(snake|2048|tetris)$/i.test(repo.name); });
+    var stars = data.repos.reduce(function (sum, repo) { return sum + (repo.stargazers_count || 0); }, 0);
     var languages = {};
     repos.forEach(function (repo) {
       var name = repo.language || "Other";
@@ -57,6 +57,8 @@
     avatar.alt = "";
     avatar.width = 54;
     avatar.height = 54;
+    avatar.loading = "lazy";
+    avatar.decoding = "async";
     var avatarUrl = api.safeHttp(user.avatar_url);
     if (avatarUrl) avatar.src = avatarUrl;
     profile.appendChild(avatar);
@@ -69,7 +71,7 @@
     mount.appendChild(profile);
 
     var numbers = el("div", "stat-grid");
-    numbers.appendChild(stat(user.public_repos || repos.length, "Repos"));
+    numbers.appendChild(stat(user.public_repos == null ? data.repos.length : user.public_repos, "Repos"));
     numbers.appendChild(stat(stars, "Stars"));
     numbers.appendChild(stat(user.followers || 0, "Followers"));
     numbers.appendChild(stat(user.following || 0, "Following"));
@@ -120,6 +122,7 @@
 
     var grid = el("div", "repo-grid");
     var empty = el("p", "note", "No repository matches.");
+    empty.setAttribute("role", "status");
     empty.hidden = true;
     mount.appendChild(grid);
     mount.appendChild(empty);
@@ -134,42 +137,49 @@
     foot.textContent = footText;
     mount.appendChild(foot);
 
+    var entries = repos.map(function (repo) {
+      var language = repo.language || "Other";
+      var about = api.blurb(repo);
+      var hay = (repo.name + " " + about + " " + language).toLowerCase();
+      var card = el("a", "repo");
+      card.href = "repo/?name=" + encodeURIComponent(repo.name);
+      var top = el("div", "repo-top");
+      top.appendChild(el("h3", "", repo.name));
+      top.appendChild(el("span", "lang", language));
+      card.appendChild(top);
+      card.appendChild(el("p", "", about));
+      var meta = el("div", "repo-foot");
+      var bits = [];
+      bits.push((repo.stargazers_count || 0) + " stars");
+      bits.push((repo.forks_count || 0) + " forks");
+      if (repo.fork) bits.push("fork");
+      if (repo.archived) bits.push("archived");
+      if (repo.license && repo.license.spdx_id && repo.license.spdx_id !== "NOASSERTION") bits.push(repo.license.spdx_id);
+      meta.appendChild(el("span", "", bits.join(" · ")));
+      meta.appendChild(el("span", "", api.relativeTime(repo.pushed_at)));
+      card.appendChild(meta);
+      return { card: card, language: language, hay: hay };
+    });
+
     function renderRepos() {
       var needle = query.trim().toLowerCase();
-      grid.replaceChildren();
+      var fragment = document.createDocumentFragment();
       var shown = 0;
-      repos.forEach(function (repo) {
-        var language = repo.language || "Other";
-        if (active !== "All" && language !== active) return;
-        var about = api.blurb(repo);
-        var hay = (repo.name + " " + about + " " + language).toLowerCase();
-        if (needle && hay.indexOf(needle) === -1) return;
-        var card = el("a", "repo");
-        card.href = "repo/?name=" + encodeURIComponent(repo.name);
-        var top = el("div", "repo-top");
-        top.appendChild(el("h3", "", repo.name));
-        top.appendChild(el("span", "lang", language));
-        card.appendChild(top);
-        card.appendChild(el("p", "", about));
-        var meta = el("div", "repo-foot");
-        var bits = [];
-        bits.push((repo.stargazers_count || 0) + " stars");
-        bits.push((repo.forks_count || 0) + " forks");
-        if (repo.fork) bits.push("fork");
-        if (repo.archived) bits.push("archived");
-        if (repo.license && repo.license.spdx_id && repo.license.spdx_id !== "NOASSERTION") bits.push(repo.license.spdx_id);
-        meta.appendChild(el("span", "", bits.join(" · ")));
-        meta.appendChild(el("span", "", api.relativeTime(repo.pushed_at)));
-        card.appendChild(meta);
-        grid.appendChild(card);
+      entries.forEach(function (entry) {
+        if (active !== "All" && entry.language !== active) return;
+        if (needle && entry.hay.indexOf(needle) === -1) return;
+        fragment.appendChild(entry.card);
         shown += 1;
       });
+      grid.replaceChildren(fragment);
       empty.hidden = shown !== 0;
     }
 
+    var searchFrame = 0;
     search.addEventListener("input", function () {
       query = search.value;
-      renderRepos();
+      window.cancelAnimationFrame(searchFrame);
+      searchFrame = window.requestAnimationFrame(renderRepos);
     });
     renderRepos();
   }
@@ -181,8 +191,23 @@
     var node = el("p", "error", message + " ");
     node.appendChild(link("https://github.com/" + api.USER, "", "Open the profile on GitHub."));
     mount.appendChild(node);
+    var retry = el("button", "btn", "Try again");
+    retry.type = "button";
+    retry.addEventListener("click", load, { once: true });
+    mount.appendChild(retry);
   }
 
-  skeleton();
-  api.loadProfile().then(draw).catch(fail);
+  function load() {
+    skeleton();
+    return api.loadProfile().then(draw).catch(fail);
+  }
+
+  if ("IntersectionObserver" in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      if (!entries.some(function (entry) { return entry.isIntersecting; })) return;
+      observer.disconnect();
+      load();
+    }, { rootMargin: "300px" });
+    observer.observe(mount);
+  } else load();
 })();

@@ -3,23 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script>
-    (function () {
-      var saved = "";
-      try { saved = localStorage.getItem("jh270-theme") || ""; } catch (err) {}
-      if (saved !== "light" && saved !== "dark") {
-        saved = "";
-        try { localStorage.removeItem("jh270-theme"); } catch (err) {}
-      }
-      var dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var theme = saved || (dark ? "dark" : "light");
-      var root = document.documentElement;
-      root.dataset.theme = theme;
-      root.dataset.themeChoice = saved || "system";
-    })();
-  </script>
+  <script src="js/theme-init.js?v=8"></script>
   <title>Jinhong270 — jh270.com</title>
-  <meta name="description" content="Homepage of Jinhong270. An Android toolbox, arcade games, public repositories, and a guest terminal.">
+  <meta name="description" content="Jinhong270's personal system: AndroidToolBox, public repositories, a guest terminal, and Echo Courier, an original game about playing alongside your past self.">
   <meta name="theme-color" content="#080a07">
   <link rel="canonical" href="https://jh270.com/">
   <meta property="og:title" content="Jinhong270">
@@ -31,7 +17,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/site.css?v=6">
+  <link rel="stylesheet" href="css/site.css?v=8">
+  <link rel="stylesheet" href="css/arcade.css?v=8">
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
@@ -49,18 +36,6 @@
       <button type="button" class="theme-btn" data-theme-toggle aria-label="Theme is light. Activate to switch to dark.">
         <span class="theme-swap" data-theme-label>DAY</span>
       </button>
-      <script>
-        (function () {
-          var dark = document.documentElement.dataset.theme === "dark";
-          var label = document.querySelector("[data-theme-label]");
-          var button = document.querySelector("[data-theme-toggle]");
-          var name = dark ? "Theme is dark. Activate to switch to light." : "Theme is light. Activate to switch to dark.";
-          if (label) label.textContent = dark ? "NIGHT" : "DAY";
-          if (!button) return;
-          button.setAttribute("aria-label", name);
-          button.title = name;
-        })();
-      </script>
     </div>
   </header>
   <main id="content" class="wrap">
@@ -106,37 +81,11 @@
         <p>An Android SSH toolbox for browsing remote files and opening a shell. The toolbox is the active project, and more tools are on the way.</p>
         <a class="text-link" href="https://github.com/Jinhong270/AndroidToolBox">github.com/Jinhong270/AndroidToolBox</a>
       </article>
-      <div class="grid-3">
-        <article class="card">
-          <h3>Snake</h3>
-          <p>Classic snake. Steer, eat, and don't run into yourself.</p>
-          <p class="card-links">
-            <a href="terminal/?run=%2Fgame%20snake">Play</a>
-            <a href="repo/?name=Snake">Repository</a>
-          </p>
-        </article>
-        <article class="card">
-          <h3>2048</h3>
-          <p>Slide tiles on a 4×4 board until they merge into 2048.</p>
-          <p class="card-links">
-            <a href="terminal/?run=%2Fgame%202048">Play</a>
-            <a href="repo/?name=2048">Repository</a>
-          </p>
-        </article>
-        <article class="card">
-          <h3>Tetris</h3>
-          <p>Stack falling pieces and clear lines.</p>
-          <p class="card-links">
-            <a href="terminal/?run=%2Fgame%20tetris">Play</a>
-            <a href="repo/?name=Tetris">Repository</a>
-          </p>
-        </article>
-      </div>
       <p class="keys" aria-label="Terminal commands">
         <a href="terminal/?run=%2Fhelp"><kbd>/help</kbd></a>
         <a href="terminal/?run=%2Fabout"><kbd>/about</kbd></a>
         <a href="terminal/?run=%2Frepos"><kbd>/repos</kbd></a>
-        <a href="terminal/?run=%2Fgame"><kbd>/game</kbd></a>
+        <a href="#echo-courier" data-open-game aria-haspopup="dialog"><kbd>/game</kbd></a>
         <a href="terminal/?run=%2Ftheme"><kbd>/theme</kbd></a>
       </p>
     </section>
@@ -147,8 +96,47 @@
           <p class="kicker">02 — GitHub</p>
           <h2>Public record</h2>
         </div>
-        <p>Numbers and repositories are requested by your browser from GitHub. Nothing is fetched by a server for this page.</p>
+        <p>A game made for this little corner of the internet, alongside the public repositories.</p>
       </div>
+      <article class="arcade-card" id="echo-courier">
+        <div class="arcade-card-copy">
+          <div class="arcade-card-meta"><span class="tag">JH270 original</span><span>01 / Playable project</span></div>
+          <p class="arcade-card-path">HomePage / experiments / 270</p>
+          <h3>ECHO<br><span>COURIER</span><small>SIGNAL RESCUE · 270</small></h3>
+          <p class="arcade-card-description">Your best accomplice is you, 2.7 seconds ago. Recover lost signals, trade places with your echo, and turn the thread between you into a rescue route.</p>
+          <div class="arcade-card-actions">
+            <button class="btn btn-accent" type="button" data-open-game aria-haspopup="dialog">Enter the signal <span aria-hidden="true">↗</span></button>
+            <a href="repo/?name=HomePage">View source <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="arcade-card-caption">Three sectors · One past self · Keyboard & touch</p>
+        </div>
+        <div class="arcade-card-art" aria-hidden="true">
+          <div class="arcade-art-top"><span>JH—270 / SIGNAL FIELD</span><span class="arcade-live">● LOCAL</span></div>
+          <svg viewBox="0 0 480 340" fill="none">
+            <defs>
+              <pattern id="signal-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="#b6f25c" stroke-opacity=".08"/></pattern>
+              <radialGradient id="signal-glow"><stop stop-color="#b6f25c" stop-opacity=".15"/><stop offset="1" stop-color="#b6f25c" stop-opacity="0"/></radialGradient>
+            </defs>
+            <path fill="url(#signal-grid)" d="M0 0h480v340H0z"/>
+            <circle cx="240" cy="170" r="150" fill="url(#signal-glow)"/>
+            <circle cx="240" cy="170" r="118" stroke="#526b3c" stroke-dasharray="2 9"/>
+            <path d="M118 228L144 120L242 96L340 138L368 228" stroke="#789952" stroke-width="2" stroke-dasharray="5 7"/>
+            <path class="arcade-thread" d="M118 228L340 138" stroke="#b6f25c" stroke-width="2"/>
+            <path d="M335 0H361V340H335z" fill="#f0b429" opacity=".06"/>
+            <path d="M348 0V340" stroke="#f0b429" stroke-opacity=".3" stroke-dasharray="6 8"/>
+            <circle cx="240" cy="170" r="37" fill="#111d10" stroke="#b6f25c" stroke-opacity=".6"/>
+            <circle cx="240" cy="170" r="28" stroke="#b6f25c" stroke-opacity=".2"/>
+            <path d="M231 168l9-8 9 8v12h-18z" stroke="#b6f25c" stroke-width="1.5"/>
+            <g fill="#f0b429"><path d="M180 142l5 8-5 8-5-8z"/><path d="M286 222l5 8-5 8-5-8z"/><path d="M392 100l5 8-5 8-5-8z"/><path d="M90 92l5 8-5 8-5-8z"/></g>
+            <circle cx="118" cy="228" r="17" fill="#121f12" stroke="#b6f25c" stroke-dasharray="3 4"/>
+            <path d="M111 232l7-13 7 13-7-3z" fill="#72994c"/>
+            <circle class="arcade-courier-ring" cx="340" cy="138" r="23" stroke="#b6f25c" stroke-opacity=".2"/>
+            <path d="M330 145l10-19 10 19-10-4z" fill="#b6f25c"/>
+            <g fill="#a3b396" font-family="monospace" font-size="10" letter-spacing="1"><text x="83" y="266">YOU − 2.7s</text><text x="324" y="104">YOU</text><text x="222" y="222">HOME</text></g>
+          </svg>
+          <div class="arcade-art-bottom"><span>PAST ←→ PRESENT</span><span>SPACE TO ECHO</span></div>
+        </div>
+      </article>
       <div id="github-mount" class="github-mount" aria-busy="true">
         <p class="note">Reading the public profile in this browser…</p>
       </div>
@@ -165,9 +153,10 @@
       <span id="clock">--:--:--</span>
     </div>
   </footer>
-  <script src="js/theme.js?v=6"></script>
-  <script src="js/github-data.js?v=6"></script>
-  <script src="js/github-ui.js?v=6"></script>
-  <script src="js/home.js?v=6"></script>
+  <script src="js/theme.js?v=8"></script>
+  <script src="js/arcade.js?v=8"></script>
+  <script src="js/github-data.js?v=8"></script>
+  <script src="js/github-ui.js?v=8"></script>
+  <script src="js/home.js?v=8"></script>
 </body>
 </html>
