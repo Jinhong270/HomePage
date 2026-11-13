@@ -6,6 +6,7 @@
   var MARK = "M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z";
   var ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
   var MAX_LINES = 1500;
+  var MAX_README = 300000;
   var OPEN_FILES = 5;
   var seq = 0;
   var shown = false;
@@ -68,11 +69,15 @@
     return err && err.message ? err.message : "GitHub could not be read.";
   }
 
-  function bases(data) {
-    var branch = encodeURI(data.default_branch || "main");
+  function bases(data, file) {
+    var branch = encodeURIComponent(data.default_branch || "main");
+    var path = String(file.path || file.name || "README.md").split("/").map(encodeURIComponent).join("/");
+    var directory = path.slice(0, path.lastIndexOf("/") + 1);
+    var blob = data.html_url + "/blob/" + branch + "/";
     return {
-      raw: "https://raw.githubusercontent.com/" + api.USER + "/" + encodeURIComponent(data.name) + "/" + branch + "/",
-      blob: data.html_url + "/blob/" + branch + "/"
+      raw: "https://raw.githubusercontent.com/" + api.USER + "/" + encodeURIComponent(data.name) + "/" + branch + "/" + directory,
+      blob: blob + directory,
+      document: blob + path
     };
   }
 
@@ -91,11 +96,17 @@
     img.src = url;
     img.alt = alt || "";
     img.loading = "lazy";
+    img.decoding = "async";
     img.referrerPolicy = "no-referrer";
     return img;
   }
 
-  function inline(parent, text, base) {
+  function inline(parent, text, base, depth) {
+    depth = depth || 0;
+    if (depth > 8 || text.length > 16000) {
+      parent.appendChild(document.createTextNode(text));
+      return;
+    }
     var re = /`([^`]+)`|!\[([^\]]*)\]\(((?:[^()\s]|\([^()\s]*\))+)[^)]*\)|\[((?:[^\[\]]|!\[[^\]]*\]\((?:[^()]|\([^()]*\))*\))*)\]\(((?:[^()\s]|\([^()\s]*\))+)[^)]*\)|\*\*([^*]+)\*\*|\*([^*\s][^*]*)\*|<(https?:[^>\s]+)>|(<img\s[^>]*>)|<\/?[A-Za-z][^>]*>/g;
     var last = 0;
     var m;
@@ -107,17 +118,17 @@
       } else if (m[3] != null) {
         parent.appendChild(picture(m[3], m[2], base));
       } else if (m[5] != null) {
-        var href = m[5].charAt(0) === "#" ? "" : resolve(m[5], base.blob);
+        var href = resolve(m[5], m[5].charAt(0) === "#" ? base.document : base.blob);
         var a = href ? ext(href, "", "") : el("span");
-        inline(a, m[4], base);
+        inline(a, m[4], base, depth + 1);
         parent.appendChild(a);
       } else if (m[6] != null) {
         var strong = el("strong");
-        inline(strong, m[6], base);
+        inline(strong, m[6], base, depth + 1);
         parent.appendChild(strong);
       } else if (m[7] != null) {
         var em = el("em");
-        inline(em, m[7], base);
+        inline(em, m[7], base, depth + 1);
         parent.appendChild(em);
       } else if (m[8] != null) {
         parent.appendChild(ext(m[8], "", m[8]));
@@ -222,7 +233,12 @@
 
   function markdown(source, base) {
     var root = el("div", "md");
-    var lines = source.replace(/<!-{2}[\s\S]*?-{2}>/g, "").replace(/\r\n?/g, "\n").split("\n");
+    var truncated = source.length > MAX_README;
+    var lines = source.slice(0, MAX_README).replace(/<!-{2}[\s\S]*?-{2}>/g, "").replace(/\r\n?/g, "\n").split("\n");
+    if (lines.length > 5000) {
+      truncated = true;
+      lines.length = 5000;
+    }
     var para = [];
     var i = 0;
 
@@ -309,6 +325,11 @@
       i += 1;
     }
     flush();
+    if (truncated) {
+      var note = el("p", "note", "This README preview is shortened. ");
+      note.appendChild(ext(base.document, "", "Read the full file on GitHub."));
+      root.appendChild(note);
+    }
     return root;
   }
 
@@ -532,7 +553,7 @@
         return;
       }
       docs.firstChild.textContent = file.name || "README";
-      docs.appendChild(markdown(file.text, bases(data)));
+      docs.appendChild(markdown(file.text, bases(data, file)));
     }).catch(function (err) {
       if (token !== seq) return;
       docWait.remove();
@@ -563,10 +584,13 @@
     var wait = waiting(body);
     var problem = null;
     var page = 0;
+    var loading = false;
     body.appendChild(list);
     body.appendChild(more);
 
     function next() {
+      if (loading || token !== seq) return;
+      loading = true;
       if (problem) {
         problem.remove();
         problem = null;
@@ -577,7 +601,9 @@
       api.loadCommits(data.name, page).then(function (items) {
         if (token !== seq) return;
         wait.remove();
-        items.forEach(function (item) { list.appendChild(commitRow(data.name, item)); });
+        var fragment = document.createDocumentFragment();
+        items.forEach(function (item) { fragment.appendChild(commitRow(data.name, item)); });
+        list.appendChild(fragment);
         if (!list.children.length) problem = notice(body, "No commits yet.", "note");
         more.hidden = items.length < api.PAGE;
         more.disabled = false;
@@ -588,12 +614,15 @@
         page -= 1;
         if (err && err.status === 409) {
           problem = notice(body, "This repository has no commits yet.", "note");
+          more.hidden = true;
           return;
         }
         problem = notice(body, reason(err), "error");
         more.hidden = false;
         more.disabled = false;
         more.textContent = "Try again";
+      }).finally(function () {
+        loading = false;
       });
     }
 
@@ -650,7 +679,7 @@
     files.forEach(function (file, index) {
       box.appendChild(fileNode(file, index < OPEN_FILES));
     });
-    if (files.length >= 300) box.appendChild(el("p", "diff-note", "GitHub lists at most 300 files for one commit."));
+    if (files.length >= 3000) box.appendChild(el("p", "diff-note", "GitHub lists at most 3,000 files for one commit."));
     frag.appendChild(box);
     return { root: frag, title: title };
   }

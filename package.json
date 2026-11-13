@@ -1,0 +1,12 @@
+{
+  "name": "jh270-homepage",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Jinhong270's static homepage and original Echo Courier game",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
