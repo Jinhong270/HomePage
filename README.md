@@ -6,7 +6,7 @@ Retro homepage for Jinhong270. Plain HTML, CSS, and JavaScript; no runtime depen
 - `/repo/?name=<repository>` shows one public repository without leaving the site: details, languages, README, the commit list, and every commit's changed files. The link at the top, GitHub icon plus `Jinhong270/<repository>`, is the way out to GitHub.
 - `/terminal/` is a guest shell for `guest@jh270.com`. Commands are printed, not executed. `/game` or `/game echo` opens the same ECHO COURIER window.
 
-A first visit uses the device's light or dark setting. The control at the top right switches between day and night. All pages share the same theme initialization.
+A first visit uses the device's light or dark setting. The control at the top right switches between day and night. All pages share the same theme initialization. The game card, window, menus, and signal field follow that theme, including changes while a run is open or paused.
 
 ## ECHO COURIER · 270
 

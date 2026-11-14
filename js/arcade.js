@@ -121,8 +121,8 @@
     waiting.setAttribute("role", "status");
     body.replaceChildren(waiting);
     loading = Promise.all([
-      asset("css/echo-courier.css?v=8", true),
-      asset("js/echo-courier.js?v=8", false)
+      asset("css/echo-courier.css?v=9", true),
+      asset("js/echo-courier.js?v=9", false)
     ]).then(function () {
       if (token !== generation || !dialog.open) return false;
       body.replaceChildren();

@@ -4,7 +4,26 @@
   const DELAY = 2.7;
   const SECTOR_TIME = 36;
   const BEST_KEY = "jh270-echo-courier-best-v1";
-  const COLORS = { lime: "#c7fa73", cyan: "#71dfd4", amber: "#f3bd62", pink: "#f48e9b", muted: "#869a81" };
+  const PALETTES = {
+    dark: {
+      lime: "#c7fa73", cyan: "#71dfd4", amber: "#f3bd62", pink: "#f48e9b",
+      background: "#090e0e", grid: "#17261e", fieldText: "#51644f",
+      scanRgb: "244,142,155", scanWarning: "#a25d66", homeRing: "#43643b",
+      homeGlow: "rgba(199,250,115,.11)", homeGlowEdge: "rgba(199,250,115,0)",
+      homeThread: "rgba(199,250,115,.32)", trail: "rgba(113,223,212,.14)",
+      echoReady: "rgba(113,223,212,.5)", echoCharging: "rgba(113,223,212,.16)",
+      stunnedFill: "#163b35", glitchFill: "#3b1e28", playerCore: "#243222"
+    },
+    light: {
+      lime: "#31572c", cyan: "#146d67", amber: "#99520c", pink: "#a63a4d",
+      background: "#f4efe4", grid: "#ded8c9", fieldText: "#6c7160",
+      scanRgb: "166,58,77", scanWarning: "#a35f6b", homeRing: "#8b9b78",
+      homeGlow: "rgba(49,87,44,.11)", homeGlowEdge: "rgba(49,87,44,0)",
+      homeThread: "rgba(49,87,44,.45)", trail: "rgba(20,109,103,.23)",
+      echoReady: "rgba(20,109,103,.65)", echoCharging: "rgba(20,109,103,.3)",
+      stunnedFill: "#d8e9e2", glitchFill: "#f0d6d8", playerCore: "#f4efe4"
+    }
+  };
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
@@ -40,6 +59,8 @@
     const pauseButton = root.querySelector(".echo-pause");
     const keys = new Set();
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let theme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+    let colors = PALETTES[theme];
     let best = 0;
     try { best = Math.max(0, Number(localStorage.getItem(BEST_KEY)) || 0); } catch (error) {}
     let state = "intro";
@@ -84,6 +105,16 @@
 
     function listen(target, event, callback, options) {
       target.addEventListener(event, callback, { ...options, signal });
+    }
+
+    function syncTheme() {
+      const next = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+      if (next === theme || destroyed) return;
+      theme = next;
+      colors = PALETTES[theme];
+      hudValue = "";
+      updateHud();
+      draw();
     }
 
     function setMessage(text, seconds) {
@@ -205,8 +236,8 @@
       const gain = Math.round(cargo * (8 + cargo * 2) * (1 + (combo - 1) * .25));
       score += gain;
       delivered += cargo;
-      label("+" + gain + (combo > 1 ? "  CHAIN ×" + combo : "  DELIVERED"), home.x, home.y - 56, COLORS.lime);
-      burst(home.x, home.y, COLORS.lime, 22);
+      label("+" + gain + (combo > 1 ? "  CHAIN ×" + combo : "  DELIVERED"), home.x, home.y - 56, "lime");
+      burst(home.x, home.y, "lime", 22);
       announce(cargo + " signals delivered. Score " + score + ".");
       cargo = 0;
       lastBank = time;
@@ -217,7 +248,7 @@
       const item = packets[index];
       cargo += 1;
       if (threaded) echoCatches += 1;
-      burst(item.x, item.y, threaded ? COLORS.cyan : COLORS.amber, 6);
+      burst(item.x, item.y, threaded ? "cyan" : "amber", 6);
       packets.splice(index, 1);
       if (cargo === capacity) setMessage("Cargo full. Follow the dotted line HOME.", 4);
     }
@@ -240,7 +271,7 @@
       glitches.forEach(glitch => {
         if (segmentDistance(glitch, startPoint, endPoint) < 42) {
           glitch.stun = 3;
-          burst(glitch.x, glitch.y, COLORS.cyan, 8);
+          burst(glitch.x, glitch.y, "cyan", 8);
         }
       });
       player.x = endPoint.x;
@@ -249,10 +280,10 @@
       invincible = Math.max(invincible, .65);
       swapFlash = { start: startPoint, end: endPoint, life: .45 };
       history.push({ t: time, ...player });
-      burst(startPoint.x, startPoint.y, COLORS.cyan, 14);
-      burst(endPoint.x, endPoint.y, COLORS.lime, 14);
+      burst(startPoint.x, startPoint.y, "cyan", 14);
+      burst(endPoint.x, endPoint.y, "lime", 14);
       if (caught) {
-        label("THREAD +" + caught, player.x, player.y - 27, COLORS.cyan);
+        label("THREAD +" + caught, player.x, player.y - 27, "cyan");
         setMessage("Echo thread recovered " + caught + " signal" + (caught === 1 ? "" : "s") + ".", 2);
       }
       pointer = null;
@@ -269,8 +300,8 @@
         const angle = Math.PI * 2 * i / Math.max(1, dropped);
         addPacket({ x: clamp(player.x + Math.cos(angle) * 52, 30, worldWidth - 30), y: clamp(player.y + Math.sin(angle) * 52, 30, worldHeight - 30) });
       }
-      burst(player.x, player.y, COLORS.pink, 18);
-      label("−1 INTEGRITY", player.x, player.y - 24, COLORS.pink);
+      burst(player.x, player.y, "pink", 18);
+      label("−1 INTEGRITY", player.x, player.y - 24, "pink");
       announce("Integrity " + health + " of 4. " + dropped + " signals dropped.");
       setMessage("Signal disrupted. Your dropped cargo can be recovered.", 3);
       if (health <= 0) finish(false);
@@ -369,9 +400,9 @@
       hudValue = value;
       scoreNode.textContent = String(score).padStart(3, "0");
       cargoNode.textContent = cargo + " / " + capacity;
-      cargoNode.style.color = cargo === capacity ? COLORS.amber : "";
+      cargoNode.style.color = cargo === capacity ? colors.amber : "";
       healthNode.textContent = "●".repeat(Math.max(0, health)) + "○".repeat(4 - Math.max(0, health));
-      healthNode.style.color = health <= 1 ? COLORS.pink : "";
+      healthNode.style.color = health <= 1 ? colors.pink : "";
       healthNode.setAttribute("aria-label", health + " of 4 integrity");
       sectorNode.textContent = "SECTOR 0" + sector + " / 03";
       timeNode.textContent = Math.max(0, Math.ceil(sectorTime)) + "s";
@@ -462,18 +493,18 @@
     function draw() {
       if (!ctx || destroyed) return;
       ctx.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0);
-      ctx.fillStyle = "#090e0e";
+      ctx.fillStyle = colors.background;
       ctx.fillRect(0, 0, width, height);
       ctx.save();
       ctx.scale(scale, scale);
       ctx.lineWidth = 1 / scale;
-      ctx.strokeStyle = "#17261e";
+      ctx.strokeStyle = colors.grid;
       ctx.beginPath();
       for (let x = 0; x < worldWidth; x += 45) { ctx.moveTo(x, 0); ctx.lineTo(x, worldHeight); }
       for (let y = 0; y < worldHeight; y += 45) { ctx.moveTo(0, y); ctx.lineTo(worldWidth, y); }
       ctx.stroke();
       ctx.font = "10px monospace";
-      ctx.fillStyle = "#51644f";
+      ctx.fillStyle = colors.fieldText;
       ctx.textAlign = "left";
       ctx.fillText("JH270 // MEMORY NETWORK", 18, worldHeight - 16);
       ctx.textAlign = "right";
@@ -482,8 +513,8 @@
       scans.forEach(scan => {
         const firing = scan.age >= scan.warning;
         const alpha = firing ? .23 : .05 + .07 * Math.sin(scan.age * 13) ** 2;
-        ctx.fillStyle = "rgba(244,142,155," + alpha + ")";
-        ctx.strokeStyle = firing ? COLORS.pink : "#a25d66";
+        ctx.fillStyle = "rgba(" + colors.scanRgb + "," + alpha + ")";
+        ctx.strokeStyle = firing ? colors.pink : colors.scanWarning;
         ctx.lineWidth = firing ? 2 : 1;
         ctx.setLineDash(firing ? [] : [6, 7]);
         if (scan.vertical) {
@@ -496,7 +527,7 @@
         ctx.setLineDash([]);
         if (!firing) {
           ctx.font = "bold 12px monospace";
-          ctx.fillStyle = COLORS.pink;
+          ctx.fillStyle = colors.pink;
           ctx.textAlign = "center";
           ctx.fillText("!", scan.vertical ? scan.position : 22, scan.vertical ? 24 : scan.position + 4);
         }
@@ -504,23 +535,23 @@
 
       const pulse = reduced ? 0 : Math.sin(time * 2) * 4;
       const glow = ctx.createRadialGradient(home.x, home.y, 15, home.x, home.y, 85);
-      glow.addColorStop(0, "rgba(199,250,115,.11)");
-      glow.addColorStop(1, "rgba(199,250,115,0)");
+      glow.addColorStop(0, colors.homeGlow);
+      glow.addColorStop(1, colors.homeGlowEdge);
       ctx.fillStyle = glow;
       ctx.beginPath(); ctx.arc(home.x, home.y, 85, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = "#43643b";
+      ctx.strokeStyle = colors.homeRing;
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(home.x, home.y, 49 + pulse, 0, Math.PI * 2); ctx.stroke();
-      ctx.strokeStyle = COLORS.lime;
+      ctx.strokeStyle = colors.lime;
       ctx.setLineDash([4, 8]);
       ctx.beginPath(); ctx.arc(home.x, home.y, 43, -time * .15, Math.PI * 2 - time * .15); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font = "10px monospace";
-      ctx.fillStyle = COLORS.lime;
+      ctx.fillStyle = colors.lime;
       ctx.textAlign = "center";
       ctx.fillText("HOME", home.x, home.y + 4);
       if (cargo) {
-        ctx.strokeStyle = "rgba(199,250,115,.32)";
+        ctx.strokeStyle = colors.homeThread;
         ctx.setLineDash([3, 8]);
         ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(home.x, home.y); ctx.stroke();
         ctx.setLineDash([]);
@@ -529,26 +560,26 @@
       if (history.length > 1) {
         ctx.beginPath();
         history.forEach((item, index) => { if (index === 0) ctx.moveTo(item.x, item.y); else ctx.lineTo(item.x, item.y); });
-        ctx.strokeStyle = "rgba(113,223,212,.14)";
+        ctx.strokeStyle = colors.trail;
         ctx.lineWidth = 2;
         ctx.stroke();
-        ctx.strokeStyle = time >= echoReady ? "rgba(113,223,212,.5)" : "rgba(113,223,212,.16)";
+        ctx.strokeStyle = time >= echoReady ? colors.echoReady : colors.echoCharging;
         ctx.lineWidth = 1;
         ctx.setLineDash([6, 8]);
         ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(echo.x, echo.y); ctx.stroke();
         ctx.setLineDash([]);
-        diamond(echo.x, echo.y, 12, COLORS.cyan, false);
+        diamond(echo.x, echo.y, 12, colors.cyan, false);
         ctx.font = "9px monospace";
-        ctx.fillStyle = COLORS.cyan;
+        ctx.fillStyle = colors.cyan;
         ctx.fillText("−2.7s", echo.x, echo.y - 20);
       }
 
       packets.forEach(item => {
         const bob = reduced ? 0 : Math.sin(time * 2.5 + item.phase) * 2;
         ctx.globalAlpha = .12;
-        diamond(item.x, item.y + bob, 14, COLORS.amber, true);
+        diamond(item.x, item.y + bob, 14, colors.amber, true);
         ctx.globalAlpha = 1;
-        diamond(item.x, item.y + bob, 6, COLORS.amber, true);
+        diamond(item.x, item.y + bob, 6, colors.amber, true);
       });
 
       glitches.forEach(glitch => {
@@ -556,12 +587,12 @@
         ctx.translate(glitch.x, glitch.y);
         ctx.rotate(reduced ? glitch.angle : time * (glitch.stun ? -.5 : 1) + glitch.angle);
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = glitch.stun ? COLORS.cyan : COLORS.pink;
-        ctx.fillStyle = glitch.stun ? "#163b35" : "#3b1e28";
+        ctx.strokeStyle = glitch.stun ? colors.cyan : colors.pink;
+        ctx.fillStyle = glitch.stun ? colors.stunnedFill : colors.glitchFill;
         ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(11, 8); ctx.lineTo(-11, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
         ctx.restore();
         if (glitch.stun) {
-          ctx.fillStyle = COLORS.cyan;
+          ctx.fillStyle = colors.cyan;
           ctx.font = "8px monospace";
           ctx.fillText("STUN", glitch.x, glitch.y - 19);
         }
@@ -569,35 +600,35 @@
 
       if (swapFlash) {
         ctx.globalAlpha = swapFlash.life / .45;
-        ctx.strokeStyle = COLORS.cyan;
+        ctx.strokeStyle = colors.cyan;
         ctx.lineWidth = reduced ? 3 : 12 * swapFlash.life;
         ctx.beginPath(); ctx.moveTo(swapFlash.start.x, swapFlash.start.y); ctx.lineTo(swapFlash.end.x, swapFlash.end.y); ctx.stroke();
         ctx.globalAlpha = 1;
       }
 
       ctx.globalAlpha = invincible > 0 && Math.floor(time * 12) % 2 ? .55 : 1;
-      if (!reduced) { ctx.shadowColor = COLORS.lime; ctx.shadowBlur = 13; }
-      diamond(player.x, player.y, 10, COLORS.lime, true);
+      if (!reduced) { ctx.shadowColor = colors.lime; ctx.shadowBlur = 13; }
+      diamond(player.x, player.y, 10, colors.lime, true);
       ctx.shadowBlur = 0;
-      ctx.fillStyle = "#243222";
+      ctx.fillStyle = colors.playerCore;
       ctx.fillRect(player.x - 2, player.y - 2, 4, 4);
       ctx.globalAlpha = 1;
       if (cargo) {
         for (let i = 0; i < cargo; i++) {
           const angle = (Math.PI * 2 * i / capacity) - Math.PI / 2;
-          ctx.fillStyle = COLORS.amber;
+          ctx.fillStyle = colors.amber;
           ctx.beginPath(); ctx.arc(player.x + Math.cos(angle) * 19, player.y + Math.sin(angle) * 19, 2, 0, Math.PI * 2); ctx.fill();
         }
       }
       particles.forEach(item => {
         ctx.globalAlpha = Math.min(1, item.life * 2);
-        ctx.fillStyle = item.color;
+        ctx.fillStyle = colors[item.color];
         ctx.fillRect(item.x - 1, item.y - 1, 3, 3);
       });
       ctx.globalAlpha = 1;
       labels.forEach(item => {
         ctx.globalAlpha = Math.min(1, item.life * 2);
-        ctx.fillStyle = item.color;
+        ctx.fillStyle = colors[item.color];
         ctx.font = "bold 12px monospace";
         ctx.fillText(item.text, clamp(item.x, 90, worldWidth - 90), item.y);
       });
@@ -690,6 +721,7 @@
     ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => listen(canvas, type, event => {
       if (pointer && pointer.id === event.pointerId) pointer = null;
     }));
+    listen(window, "jh270-theme", syncTheme);
     listen(window, "blur", pause);
     listen(document, "visibilitychange", () => { if (document.hidden) pause(); });
     const observer = new ResizeObserver(resize);

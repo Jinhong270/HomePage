@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const { readFileSync } = require("node:fs");
 const { resolve } = require("node:path");
 const vm = require("node:vm");
-const { setMaxListeners } = require("node:events");
+const { setMaxListeners, getEventListeners } = require("node:events");
 
 const source = readFileSync(resolve(__dirname, "../js/echo-courier.js"), "utf8").replace(/\r\n/g, "\n");
 const instrumented = source.replace("      pause,\n      resume,", "      inspect: expression => eval(expression),\n      pause,\n      resume,");
@@ -15,8 +15,12 @@ function harness(options = {}) {
   const frames = new Map();
   const storage = new Map();
   const nodes = new Map();
+  const draws = [];
   const rect = { width: 900, height: 500, left: 0, top: 0 };
-  const context = new Proxy({}, { get(target, key) {
+  const context = new Proxy({
+    fillRect(...args) { draws.push({ type: "rect", color: context.fillStyle, args }); },
+    fillText(text) { draws.push({ type: "text", color: context.fillStyle, text }); }
+  }, { get(target, key) {
     if (key === "createRadialGradient") return () => ({ addColorStop() {} });
     return key in target ? target[key] : () => {};
   } });
@@ -35,6 +39,7 @@ function harness(options = {}) {
     remove() { this.removed = true; }
   }
   const document = new Element("document");
+  document.documentElement = { dataset: { theme: options.theme || "dark" } };
   document.createElement = () => new Element("root");
   document.hidden = false;
   const window = new Element("window");
@@ -62,7 +67,11 @@ function harness(options = {}) {
   const container = new Element("container");
   const game = window.JH270Game.create(container);
   return {
-    game, frames, nodes, storage, rect, window, document, container,
+    game, frames, nodes, storage, rect, window, document, container, draws,
+    theme(value) {
+      document.documentElement.dataset.theme = value;
+      window.dispatchEvent(new Event("jh270-theme"));
+    },
     get observer() { return observer; },
     advance(ms) {
       now += ms;
@@ -242,4 +251,65 @@ test("hidden tab pauses and disabled storage or canvas degrades safely", () => {
   const unsupported = harness({ noCanvas: true });
   assert.match(unsupported.nodes.get(".echo-panel").innerHTML, /Canvas unavailable/);
   unsupported.game.destroy();
+});
+
+test("opening uses the current homepage canvas palette without starting animation", () => {
+  for (const [theme, background] of [["light", "#f4efe4"], ["dark", "#090e0e"]]) {
+    const h = harness({ theme });
+    assert.equal(h.draws[0].color, background);
+    assert.equal(h.frames.size, 0);
+    assert.equal(h.game.inspect("state"), "intro");
+    h.game.destroy();
+  }
+});
+
+test("a paused theme switch repaints effects and HUD without changing the run", () => {
+  const h = harness();
+  h.game.inspect("start(); time = 4; score = 77; cargo = capacity; health = 1; burst(20, 20, 'pink', 2); label('Theme sample', 40, 40, 'lime')");
+  h.game.pause();
+  const snapshot = "JSON.stringify([state, time, sectorTime, score, cargo, health, history, particles, labels])";
+  const before = h.game.inspect(snapshot);
+  h.draws.length = 0;
+  h.theme("light");
+  assert.equal(h.game.inspect(snapshot), before);
+  assert.equal(h.frames.size, 0);
+  assert.equal(h.draws[0].color, "#f4efe4");
+  assert.ok(h.draws.some(draw => draw.type === "rect" && draw.args[2] === 3 && draw.color === "#a63a4d"));
+  assert.ok(h.draws.some(draw => draw.text === "Theme sample" && draw.color === "#31572c"));
+  assert.equal(h.nodes.get("[data-cargo]").style.color, "#99520c");
+  assert.equal(h.nodes.get("[data-health]").style.color, "#a63a4d");
+  h.game.destroy();
+});
+
+test("a live theme switch preserves its frame and recolors in both directions", () => {
+  const h = harness({ theme: "light" });
+  h.game.inspect("start(); time = 4; cargo = capacity; health = 1; updateHud()");
+  const pendingFrames = [...h.frames.keys()];
+  h.draws.length = 0;
+  h.theme("dark");
+  assert.deepEqual([...h.frames.keys()], pendingFrames);
+  assert.equal(h.game.inspect("state"), "playing");
+  assert.equal(h.game.inspect("time"), 4);
+  assert.equal(h.draws[0].color, "#090e0e");
+  assert.equal(h.nodes.get("[data-cargo]").style.color, "#f3bd62");
+  assert.equal(h.nodes.get("[data-health]").style.color, "#f48e9b");
+  h.game.destroy();
+});
+
+test("idle theme redraws stay idle and destroying removes the theme subscription", () => {
+  const h = harness();
+  assert.equal(getEventListeners(h.window, "jh270-theme").length, 1);
+  for (const state of ["intro", "upgrade", "finished"]) {
+    h.game.inspect("state = '" + state + "'");
+    h.draws.length = 0;
+    h.theme(h.document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+    assert.ok(h.draws.length > 0);
+    assert.equal(h.frames.size, 0);
+    assert.equal(h.game.inspect("state"), state);
+  }
+  h.game.destroy();
+  assert.equal(getEventListeners(h.window, "jh270-theme").length, 0);
+  h.draws.length = 0;
+  h.theme("dark");
+  assert.equal(h.draws.length, 0);
 });

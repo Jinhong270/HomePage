@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/site.css?v=8">
-  <link rel="stylesheet" href="css/arcade.css?v=8">
+  <link rel="stylesheet" href="css/arcade.css?v=9">
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
@@ -114,25 +114,25 @@
           <div class="arcade-art-top"><span>JH—270 / SIGNAL FIELD</span><span class="arcade-live">● LOCAL</span></div>
           <svg viewBox="0 0 480 340" fill="none">
             <defs>
-              <pattern id="signal-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="#b6f25c" stroke-opacity=".08"/></pattern>
-              <radialGradient id="signal-glow"><stop stop-color="#b6f25c" stop-opacity=".15"/><stop offset="1" stop-color="#b6f25c" stop-opacity="0"/></radialGradient>
+              <pattern id="signal-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="var(--phosphor)" stroke-opacity=".08"/></pattern>
+              <radialGradient id="signal-glow"><stop stop-color="var(--phosphor)" stop-opacity=".15"/><stop offset="1" stop-color="var(--phosphor)" stop-opacity="0"/></radialGradient>
             </defs>
             <path fill="url(#signal-grid)" d="M0 0h480v340H0z"/>
             <circle cx="240" cy="170" r="150" fill="url(#signal-glow)"/>
-            <circle cx="240" cy="170" r="118" stroke="#526b3c" stroke-dasharray="2 9"/>
-            <path d="M118 228L144 120L242 96L340 138L368 228" stroke="#789952" stroke-width="2" stroke-dasharray="5 7"/>
-            <path class="arcade-thread" d="M118 228L340 138" stroke="#b6f25c" stroke-width="2"/>
-            <path d="M335 0H361V340H335z" fill="#f0b429" opacity=".06"/>
-            <path d="M348 0V340" stroke="#f0b429" stroke-opacity=".3" stroke-dasharray="6 8"/>
-            <circle cx="240" cy="170" r="37" fill="#111d10" stroke="#b6f25c" stroke-opacity=".6"/>
-            <circle cx="240" cy="170" r="28" stroke="#b6f25c" stroke-opacity=".2"/>
-            <path d="M231 168l9-8 9 8v12h-18z" stroke="#b6f25c" stroke-width="1.5"/>
-            <g fill="#f0b429"><path d="M180 142l5 8-5 8-5-8z"/><path d="M286 222l5 8-5 8-5-8z"/><path d="M392 100l5 8-5 8-5-8z"/><path d="M90 92l5 8-5 8-5-8z"/></g>
-            <circle cx="118" cy="228" r="17" fill="#121f12" stroke="#b6f25c" stroke-dasharray="3 4"/>
-            <path d="M111 232l7-13 7 13-7-3z" fill="#72994c"/>
-            <circle class="arcade-courier-ring" cx="340" cy="138" r="23" stroke="#b6f25c" stroke-opacity=".2"/>
-            <path d="M330 145l10-19 10 19-10-4z" fill="#b6f25c"/>
-            <g fill="#a3b396" font-family="monospace" font-size="10" letter-spacing="1"><text x="83" y="266">YOU − 2.7s</text><text x="324" y="104">YOU</text><text x="222" y="222">HOME</text></g>
+            <circle cx="240" cy="170" r="118" stroke="var(--line-strong)" stroke-dasharray="2 9"/>
+            <path d="M118 228L144 120L242 96L340 138L368 228" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 7"/>
+            <path class="arcade-thread" d="M118 228L340 138" stroke="var(--phosphor)" stroke-width="2"/>
+            <path d="M335 0H361V340H335z" fill="var(--accent)" opacity=".06"/>
+            <path d="M348 0V340" stroke="var(--accent)" stroke-opacity=".3" stroke-dasharray="6 8"/>
+            <circle cx="240" cy="170" r="37" fill="var(--bg-raise)" stroke="var(--phosphor)" stroke-opacity=".6"/>
+            <circle cx="240" cy="170" r="28" stroke="var(--phosphor)" stroke-opacity=".2"/>
+            <path d="M231 168l9-8 9 8v12h-18z" stroke="var(--phosphor)" stroke-width="1.5"/>
+            <g fill="var(--accent)"><path d="M180 142l5 8-5 8-5-8z"/><path d="M286 222l5 8-5 8-5-8z"/><path d="M392 100l5 8-5 8-5-8z"/><path d="M90 92l5 8-5 8-5-8z"/></g>
+            <circle cx="118" cy="228" r="17" fill="var(--bg-raise)" stroke="var(--phosphor)" stroke-dasharray="3 4"/>
+            <path d="M111 232l7-13 7 13-7-3z" fill="var(--phosphor)"/>
+            <circle class="arcade-courier-ring" cx="340" cy="138" r="23" stroke="var(--phosphor)" stroke-opacity=".2"/>
+            <path d="M330 145l10-19 10 19-10-4z" fill="var(--phosphor)"/>
+            <g fill="var(--muted)" font-family="monospace" font-size="10" letter-spacing="1"><text x="83" y="266">YOU − 2.7s</text><text x="324" y="104">YOU</text><text x="222" y="222">HOME</text></g>
           </svg>
           <div class="arcade-art-bottom"><span>PAST ←→ PRESENT</span><span>SPACE TO ECHO</span></div>
         </div>
@@ -154,7 +154,7 @@
     </div>
   </footer>
   <script src="js/theme.js?v=8"></script>
-  <script src="js/arcade.js?v=8"></script>
+  <script src="js/arcade.js?v=9"></script>
   <script src="js/github-data.js?v=8"></script>
   <script src="js/github-ui.js?v=8"></script>
   <script src="js/home.js?v=8"></script>

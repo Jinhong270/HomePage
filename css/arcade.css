@@ -20,12 +20,22 @@
 .arcade-card-actions > a { color: var(--muted); font-size: .78rem; }
 .arcade-card-actions .btn { display: inline-flex; justify-content: space-between; gap: 2rem; }
 .arcade-card-caption { margin: 1rem 0 0; color: var(--faint); font-size: .65rem; }
-.arcade-card-art { display: flex; flex-direction: column; justify-content: space-between; padding: 1.3rem; background: #090e08; color: #849677; border-left: 1px solid var(--line-strong); }
+.arcade-card-art { display: flex; flex-direction: column; justify-content: space-between; padding: 1.3rem; background: var(--bg-sink); color: var(--muted); border-left: 1px solid var(--line-strong); }
 .arcade-card-art svg { display: block; width: 100%; height: auto; }
 .arcade-art-top, .arcade-art-bottom { display: flex; justify-content: space-between; gap: 1rem; font-size: .6rem; letter-spacing: .08em; }
-.arcade-live { color: #b6f25c; }
+.arcade-live { color: var(--phosphor); }
 .arcade-thread { stroke-dasharray: 8 5; animation: signal-thread 2.7s linear infinite; }
 @keyframes signal-thread { to { stroke-dashoffset: -52; } }
+
+.arcade-dialog {
+  --arcade-backdrop: rgba(70, 48, 20, .35);
+  --arcade-shadow: rgba(70, 48, 20, .22);
+}
+
+:root[data-theme="dark"] .arcade-dialog {
+  --arcade-backdrop: #030703d9;
+  --arcade-shadow: #0009;
+}
 
 .arcade-dialog {
   display: flex;
@@ -37,25 +47,25 @@
   max-height: none;
   padding: 0;
   margin: auto;
-  border: 1px solid #526644;
-  background: #080d0b;
-  color: #e7f0dc;
-  box-shadow: 0 24px 100px #0009;
-  color-scheme: dark;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 24px 100px var(--arcade-shadow);
+  color-scheme: inherit;
   overflow: hidden;
 }
 
 .arcade-dialog:not([open]) { display: none; }
-.arcade-dialog::backdrop { background: #030703d9; backdrop-filter: blur(7px); }
+.arcade-dialog::backdrop { background: var(--arcade-backdrop); backdrop-filter: blur(7px); }
 .arcade-surface { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-.arcade-surface:fullscreen { width: 100%; height: 100%; background: #080d0b; }
-.arcade-bar { display: flex; align-items: center; flex: 0 0 auto; gap: .5rem; padding: .6rem .8rem; border-bottom: 1px solid #30412c; background: #111a10; }
+.arcade-surface:fullscreen { width: 100%; height: 100%; background: var(--bg); }
+.arcade-bar { display: flex; align-items: center; flex: 0 0 auto; gap: .5rem; padding: .6rem .8rem; border-bottom: 1px solid var(--line); background: var(--bg-raise); }
 .arcade-bar h2 { flex: 1; margin: 0; font: 500 .76rem/1.5 var(--mono); letter-spacing: .08em; }
-.arcade-bar button { border: 1px solid #526644; background: transparent; color: #c7d9b5; padding: .35rem .6rem; font: 400 .7rem/1.5 var(--mono); cursor: pointer; min-height: 36px; }
-.arcade-bar button:hover { background: #23301d; color: #b6f25c; }
+.arcade-bar button { border: 1px solid var(--line-strong); background: transparent; color: var(--text); padding: .35rem .6rem; font: 400 .7rem/1.5 var(--mono); cursor: pointer; min-height: 36px; }
+.arcade-bar button:hover { background: var(--bg-sink); color: var(--phosphor); }
 .arcade-body { display: flex; flex: 1; min-height: 0; position: relative; overflow: hidden; }
 .arcade-loading { margin: auto; padding: 2rem; text-align: center; font-size: .85rem; }
-.arcade-dialog :focus-visible { outline: 2px solid #b6f25c; outline-offset: 3px; }
+.arcade-dialog :focus-visible { outline: 2px solid var(--phosphor); outline-offset: 3px; }
 
 @media (max-width: 720px) {
   .arcade-card { grid-template-columns: 1fr; }
