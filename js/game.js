@@ -7,8 +7,6 @@
   }
 
   var mount = document.getElementById("game-mount");
-  var surface = document.getElementById("game-surface");
-  var fullButton = document.getElementById("game-fullscreen");
   var game;
 
   try {
@@ -28,14 +26,6 @@
     return;
   }
 
-  fullButton.hidden = !document.fullscreenEnabled;
-  fullButton.addEventListener("click", function () {
-    var action = document.fullscreenElement === surface ? document.exitFullscreen() : surface.requestFullscreen();
-    action.catch(function () { fullButton.textContent = "Unavailable"; });
-  });
-  document.addEventListener("fullscreenchange", function () {
-    fullButton.textContent = document.fullscreenElement === surface ? "Exit full screen" : "Full screen";
-  });
   window.addEventListener("pagehide", function (event) {
     if (event.persisted) game.pause();
     else game.destroy();

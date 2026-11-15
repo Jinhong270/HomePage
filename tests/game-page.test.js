@@ -25,7 +25,6 @@ function setup(options = {}) {
       this.tagName = tag;
       this.children = [];
       this.attributes = new Map();
-      this.hidden = false;
       this.textContent = "";
     }
     setAttribute(key, value) { this.attributes.set(key, value); }
@@ -36,30 +35,10 @@ function setup(options = {}) {
   const document = new Target();
   const window = new Target();
   const mount = new Node("div");
-  const surface = new Node("div");
-  const fullButton = new Node("button");
-  fullButton.hidden = true;
-  fullButton.textContent = "Full screen";
-  const nodes = { "game-mount": mount, "game-surface": surface, "game-fullscreen": fullButton };
-  const calls = { create: 0, pause: 0, destroy: 0, enter: 0, exit: 0, replace: [] };
-  let rejectFullscreen = options.rejectFullscreen;
+  const nodes = { "game-mount": mount };
+  const calls = { create: 0, pause: 0, destroy: 0, replace: [] };
   document.getElementById = id => nodes[id];
   document.createElement = tag => new Node(tag);
-  document.fullscreenEnabled = options.fullscreenEnabled !== false;
-  document.fullscreenElement = null;
-  document.exitFullscreen = () => {
-    calls.exit += 1;
-    document.fullscreenElement = null;
-    document.fire("fullscreenchange");
-    return Promise.resolve();
-  };
-  surface.requestFullscreen = () => {
-    calls.enter += 1;
-    if (rejectFullscreen) return Promise.reject(new Error("Fullscreen denied"));
-    document.fullscreenElement = surface;
-    document.fire("fullscreenchange");
-    return Promise.resolve();
-  };
   window.location = {
     pathname: options.pathname || "/game/",
     search: options.search || "",
@@ -80,10 +59,7 @@ function setup(options = {}) {
     };
   }
   vm.runInNewContext(source, { window, document });
-  return {
-    window, document, mount, surface, fullButton, calls,
-    allowFullscreen() { rejectFullscreen = false; }
-  };
+  return { window, document, mount, calls };
 }
 
 test("the slashless game URL redirects without losing its query or fragment", () => {
@@ -93,42 +69,10 @@ test("the slashless game URL redirects without losing its query or fragment", ()
   assert.equal(app.window.listeners.size, 0);
 });
 
-test("the canonical game page mounts once and toggles full screen", async () => {
+test("the canonical game page mounts once", () => {
   const app = setup();
   assert.equal(app.calls.create, 1);
   assert.deepEqual(app.calls.replace, []);
-  assert.equal(app.fullButton.hidden, false);
-  app.fullButton.fire("click");
-  await Promise.resolve();
-  assert.equal(app.document.fullscreenElement, app.surface);
-  assert.equal(app.fullButton.textContent, "Exit full screen");
-  app.fullButton.fire("click");
-  await Promise.resolve();
-  assert.equal(app.document.fullscreenElement, null);
-  assert.equal(app.fullButton.textContent, "Full screen");
-  assert.equal(app.calls.enter, 1);
-  assert.equal(app.calls.exit, 1);
-  assert.equal(app.calls.create, 1);
-});
-
-test("a rejected fullscreen request stays recoverable and does not destroy the game", async () => {
-  const app = setup({ rejectFullscreen: true });
-  app.fullButton.fire("click");
-  await Promise.resolve();
-  assert.equal(app.fullButton.textContent, "Unavailable");
-  assert.equal(app.document.fullscreenElement, null);
-  assert.equal(app.calls.destroy, 0);
-  app.allowFullscreen();
-  app.fullButton.fire("click");
-  await Promise.resolve();
-  assert.equal(app.document.fullscreenElement, app.surface);
-  assert.equal(app.fullButton.textContent, "Exit full screen");
-});
-
-test("browsers without fullscreen support still mount the game and hide the control", () => {
-  const app = setup({ fullscreenEnabled: false });
-  assert.equal(app.calls.create, 1);
-  assert.equal(app.fullButton.hidden, true);
 });
 
 test("page caching pauses the existing run and a permanent departure destroys it", () => {
@@ -154,7 +98,6 @@ test("a missing or failing engine displays an accessible reload action", () => {
     assert.equal(retry.tagName, "a");
     assert.equal(retry.href, "/game/");
     assert.equal(retry.textContent, "Reload game");
-    assert.equal(app.fullButton.hidden, true);
     assert.doesNotThrow(() => app.window.fire("pagehide", { persisted: false }));
   }
 });

@@ -22,7 +22,7 @@
       "Rescue lost signals with the echo of yourself from 2.7 seconds ago.",
       "",
       "Open with /game, or from the homepage repository showcase.",
-      "A JH270 original at /game/. Use the Terminal link to return here."
+      "A JH270 original at /game/. Use your browser's Back button to return here."
     ].join("\n"),
     "readme.txt": [
       "Guest shell for jh270.com",
