@@ -2,11 +2,12 @@
 
 Retro homepage for Jinhong270. Plain HTML, CSS, and JavaScript; no runtime dependencies or build step.
 
-- `/` introduces the work and displays public GitHub repositories. The featured ECHO COURIER card opens a game window directly inside the homepage. Other repository cards open their own pages on this site.
+- `/` introduces the work and displays public GitHub repositories. The featured ECHO COURIER card opens `/game/` in the same tab. Other repository cards open their own pages on this site.
+- `/game/` is the dedicated ECHO COURIER page at `https://www.jh270.com/game/`.
 - `/repo/?name=<repository>` shows one public repository without leaving the site: details, languages, README, the commit list, and every commit's changed files. The link at the top, GitHub icon plus `Jinhong270/<repository>`, is the way out to GitHub.
-- `/terminal/` is a guest shell for `guest@jh270.com`. Commands are printed, not executed. `/game` or `/game echo` opens the same ECHO COURIER window.
+- `/terminal/` is a guest shell for `guest@jh270.com`. Commands are printed, not executed. `/game` or `/game echo` navigates to `/game/` in the same tab.
 
-A first visit uses the device's light or dark setting. The control at the top right switches between day and night. All pages share the same theme initialization. The game card, window, menus, and signal field follow that theme, including changes while a run is open or paused.
+A first visit uses the device's light or dark setting. The control at the top right switches between day and night. All pages share the same theme initialization. The game card, page, menus, and signal field follow that theme, including changes while a run is active or paused.
 
 ## ECHO COURIER · 270
 
@@ -15,10 +16,10 @@ A signal-rescue game built for this homepage. Your echo follows your exact route
 - Move with WASD, arrow keys, or by holding and dragging on the field.
 - Press Space or the Echo button to swap. Move away from your echo first.
 - Press P or Pause to pause; leaving the tab also pauses the game.
-- Use the window controls to enter full screen or close. Outside full screen, Escape closes the window and restores focus to its opener.
+- Use the page controls to enter full screen or return to the homepage or terminal.
 - Your personal best stays in this browser's local storage. Storage being unavailable does not prevent play.
 
-The game loads only when opened. It uses local canvas rendering with a capped pixel ratio and adjusts to the visible arena. Closing the window releases animation frames, input listeners, and resize observation. Intro, pause, upgrade, and result screens do not run an animation loop. There are no embedded third-party games or game network requests.
+The game loads only on `/game/`. It uses local canvas rendering with a capped pixel ratio and adjusts to the visible arena. Leaving the page releases animation frames, input listeners, and resize observation, or pauses the run when the browser keeps the page in its back/forward cache. Intro, pause, upgrade, and result screens do not run an animation loop. There are no embedded third-party games or game network requests.
 
 ## Data and rendering
 
@@ -40,4 +41,4 @@ Open `http://127.0.0.1:4173/`. No installation is required to serve the site. No
 node --test
 ```
 
-The tests cover GitHub caching, errors and pagination, game rules and lifecycle, and dialog loading and cleanup. Browser checks should cover homepage and terminal launch, keyboard and touch input, full screen, focus restoration, and portrait/landscape layouts.
+The tests cover GitHub caching, errors and pagination, game rules and lifecycle, terminal game navigation, and game page redirects, full screen, and recovery. Browser checks should cover homepage and terminal navigation to `/game/`, keyboard and touch input, full screen, and portrait/landscape layouts.

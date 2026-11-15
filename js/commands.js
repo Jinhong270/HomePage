@@ -22,7 +22,7 @@
       "Rescue lost signals with the echo of yourself from 2.7 seconds ago.",
       "",
       "Open with /game, or from the homepage repository showcase.",
-      "A JH270 original. Close its window to return to this prompt."
+      "A JH270 original at /game/. Use the Terminal link to return here."
     ].join("\n"),
     "readme.txt": [
       "Guest shell for jh270.com",
@@ -144,8 +144,9 @@
       await ctx.printLine("The only game is ECHO COURIER. Open it with /game or /game echo.", "warn");
       return;
     }
-    await ctx.printLine("Opening ECHO COURIER · 270.", "accent");
-    await ctx.launch();
+    await ctx.printLine("Opening ECHO COURIER · 270 at /game/.", "accent");
+    if (ctx.stopped()) return;
+    window.location.href = "/game/";
   }
 
   async function readGithub(ctx) {
@@ -497,7 +498,7 @@
     { name: "ls", bare: true, group: "Files", summary: "List the guest files", usage: "ls  or  /ls", detail: "about.txt, now.txt, games.txt, and readme.txt.", run: lsCmd },
     { name: "cat", bare: true, group: "Files", summary: "Print a guest file", usage: "cat <file>  or  /cat <file>", detail: "Try cat now.txt", run: catCmd },
     { name: "echo", bare: true, group: "Files", summary: "Print the text you type", usage: "echo <text>  or  /echo <text>", detail: "Prints the text back. It does not evaluate it.", run: echoCmd },
-    { name: "game", group: "Play", summary: "Open ECHO COURIER", usage: "/game [echo]", detail: "Rescue signals with your 2.7-second echo. Opens in a window on this page; also available from the homepage repository showcase.", run: gameCmd },
+    { name: "game", group: "Play", summary: "Open ECHO COURIER", usage: "/game [echo]", detail: "Rescue signals with your 2.7-second echo. Opens /game/ in this tab; also available from the homepage repository showcase.", run: gameCmd },
     { name: "banner", group: "Play", summary: "Print the JH270 mark", usage: "/banner", detail: "A small text mark for the guest prompt.", run: bannerCmd },
     { name: "fortune", group: "Play", summary: "Print a short line", usage: "/fortune", detail: "One line, chosen on this device.", run: fortuneCmd },
     { name: "ping", bare: true, group: "Play", summary: "Pretend to ping a host", usage: "ping [host]  or  /ping [host]", detail: "The numbers are printed locally. No packet is sent.", run: pingCmd },

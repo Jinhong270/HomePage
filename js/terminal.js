@@ -160,13 +160,6 @@
     stick(true);
   }
 
-  function launch() {
-    if (canceled) return;
-    if (!window.JH270Arcade) throw new Error("The game window could not load. Refresh the page and try again.");
-    hideMenu();
-    return window.JH270Arcade.open();
-  }
-
   function clearScreen() {
     epoch += 1;
     screen.replaceChildren();
@@ -192,7 +185,6 @@
     printPre: printPre,
     link: linkLine,
     choices: choiceList,
-    launch: launch,
     clear: clearScreen,
     history: function () { return commandHistory.slice(); }
   };
@@ -480,7 +472,7 @@
   });
 
   document.addEventListener("keydown", function (event) {
-    if (event.defaultPrevented || (event.target.closest && event.target.closest("dialog"))) return;
+    if (event.defaultPrevented) return;
     var key = event.key.toLowerCase();
     if (event.key === "Escape") {
       if (menu && !menu.hidden) return;
@@ -569,7 +561,7 @@
     if (runAfter) queue.unshift(runAfter);
     updateQueue();
     pump();
-    if (!document.querySelector("dialog[open]")) input.focus();
+    input.focus();
   }
 
   boot();

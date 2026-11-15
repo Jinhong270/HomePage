@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/site.css?v=8">
-  <link rel="stylesheet" href="css/arcade.css?v=9">
+  <link rel="stylesheet" href="css/arcade.css?v=10">
 </head>
 <body>
   <a class="skip" href="#content">Skip to content</a>
@@ -85,7 +85,7 @@
         <a href="terminal/?run=%2Fhelp"><kbd>/help</kbd></a>
         <a href="terminal/?run=%2Fabout"><kbd>/about</kbd></a>
         <a href="terminal/?run=%2Frepos"><kbd>/repos</kbd></a>
-        <a href="#echo-courier" data-open-game aria-haspopup="dialog"><kbd>/game</kbd></a>
+        <a href="/game/"><kbd>/game</kbd></a>
         <a href="terminal/?run=%2Ftheme"><kbd>/theme</kbd></a>
       </p>
     </section>
@@ -105,7 +105,7 @@
           <h3>ECHO<br><span>COURIER</span><small>SIGNAL RESCUE · 270</small></h3>
           <p class="arcade-card-description">Your best accomplice is you, 2.7 seconds ago. Recover lost signals, trade places with your echo, and turn the thread between you into a rescue route.</p>
           <div class="arcade-card-actions">
-            <button class="btn btn-accent" type="button" data-open-game aria-haspopup="dialog">Enter the signal <span aria-hidden="true">↗</span></button>
+            <a class="btn btn-accent" href="/game/">Enter the signal <span aria-hidden="true">↗</span></a>
             <a href="repo/?name=HomePage">View source <span aria-hidden="true">↗</span></a>
           </div>
           <p class="arcade-card-caption">Three sectors · One past self · Keyboard & touch</p>
@@ -154,7 +154,6 @@
     </div>
   </footer>
   <script src="js/theme.js?v=8"></script>
-  <script src="js/arcade.js?v=9"></script>
   <script src="js/github-data.js?v=8"></script>
   <script src="js/github-ui.js?v=8"></script>
   <script src="js/home.js?v=8"></script>
