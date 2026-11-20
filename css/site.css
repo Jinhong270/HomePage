@@ -172,17 +172,6 @@ a:hover { color: var(--accent); }
   transform-origin: center center;
 }
 
-.theme-swap.theme-flip {
-  animation: theme-flip 0.46s ease;
-}
-
-@keyframes theme-flip {
-  0% { transform: translateY(0); opacity: 1; }
-  42% { transform: translateY(-70%); opacity: 0; }
-  43% { transform: translateY(70%); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
 html.theme-anim .theme-btn {
   animation: theme-pop 0.48s ease;
 }
