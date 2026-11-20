@@ -178,7 +178,6 @@ html.theme-anim .theme-btn {
 
 html.theme-anim body,
 html.theme-anim .top,
-html.theme-anim .monitor,
 html.theme-anim .feature,
 html.theme-anim .github-mount,
 html.theme-anim .statusline,
@@ -315,61 +314,6 @@ h1 {
 .handles a span { color: var(--faint); font-size: 0.82rem; }
 
 .handles a strong { font-weight: 500; }
-
-.monitor {
-  border: 1px solid var(--line-strong);
-  background: var(--bg-sink);
-  box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-  min-height: 22rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.monitor-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.55rem 0.75rem;
-  border-bottom: 1px solid var(--line);
-  color: var(--faint);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-}
-
-.dots { display: flex; gap: 0.35rem; }
-
-.dots i {
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 50%;
-  background: var(--line-strong);
-  display: block;
-}
-
-.dots i:nth-child(1) { background: var(--danger); }
-.dots i:nth-child(2) { background: var(--accent); }
-.dots i:nth-child(3) { background: var(--phosphor); }
-
-.boot {
-  margin: 0;
-  padding: 1rem 1rem 1.2rem;
-  white-space: pre-wrap;
-  color: var(--phosphor);
-  text-shadow: 0 0 10px var(--glow);
-  line-height: 1.7;
-  flex: 1;
-}
-
-.boot::after {
-  content: "";
-  display: inline-block;
-  width: 0.58em;
-  height: 1em;
-  margin-left: 0.15rem;
-  background: var(--phosphor);
-  vertical-align: text-bottom;
-  animation: blink 1.05s steps(1) infinite;
-}
 
 @keyframes blink {
   50% { opacity: 0; }
@@ -604,12 +548,11 @@ kbd {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .boot::after, .skeleton, .theme-btn, .theme-swap { animation: none; }
+  .skeleton, .theme-btn, .theme-swap { animation: none; }
   .theme-swap,
   html.theme-anim body,
   html.theme-anim .top,
-  html.theme-anim .monitor,
-  html.theme-anim .feature,
+    html.theme-anim .feature,
   html.theme-anim .github-mount,
   html.theme-anim .statusline,
   html.theme-anim .handles a,

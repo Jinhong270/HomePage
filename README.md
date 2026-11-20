@@ -27,7 +27,7 @@ The game loads only on `/game/`. It uses local canvas rendering with a capped pi
 
 The browser reads public GitHub data from `api.github.com` when the repository list approaches the viewport. Requests share in-flight work and use a five-minute session cache with a bounded memory cache. Repository lists and commit file details follow pagination. GitHub rate-limit errors show the reset time when provided; profile failures offer a retry. The playable project remains available if GitHub cannot load. Legacy arcade repositories are omitted from the homepage showcase; their GitHub repositories are unchanged.
 
-Repository search reuses card elements. README output is built as DOM text and safe links, with limits for very large documents. The home clock and boot animation stop while the page is hidden. Terminal output, history, and queued commands are bounded.
+Repository search reuses card elements. README output is built as DOM text and safe links, with limits for very large documents. The clock pauses while the page is hidden. The home signal receiver has three keyboard-accessible presets. Each tunes the readout, waveform and transmission without any network requests. Terminal output, history, and queued commands are bounded.
 
 ## Local development
 

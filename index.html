@@ -18,6 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/site.css?v=9">
+  <link rel="stylesheet" href="css/receiver.css?v=1">
   <link rel="stylesheet" href="css/arcade.css?v=10">
 </head>
 <body>
@@ -55,13 +56,31 @@
           <li><a href="https://huggingface.co/Jinhong270"><strong>Hugging Face</strong><span>@Jinhong270</span></a></li>
         </ul>
       </div>
-      <aside class="monitor" aria-label="Boot log">
-        <div class="monitor-bar">
-          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span>guest@jh270.com</span>
+      <section class="receiver" aria-label="Signal receiver" data-receiver>
+        <header class="receiver-head">
+          <h2><span class="receiver-icon" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>Signal receiver</h2>
+          <span class="receiver-vent" aria-hidden="true"></span>
+        </header>
+        <div class="receiver-glass">
+          <div class="receiver-readout">
+            <div class="receiver-readout-block"><span class="receiver-small">Frequency</span><span class="receiver-digits"><b data-frequency>27.0</b> <small>MHz</small></span></div>
+            <div class="receiver-readout-block"><span class="receiver-small">Call sign</span><strong data-call-sign>JH270</strong></div>
+          </div>
+          <div class="receiver-plot" aria-hidden="true">
+            <div class="receiver-scale"><span>+1</span><span>0</span><span>−1</span></div>
+            <div class="receiver-grid">
+              <svg viewBox="0 0 600 120" preserveAspectRatio="none" focusable="false">
+                <path class="receiver-wave" d="M0 60 Q10 5 20 60 T40 60 T60 60 T80 60 Q92 34 104 60 T128 60 T152 60 T176 60 Q188 12 200 60 T224 60 T248 60 T272 60 Q284 30 296 60 T320 60 T344 60 T368 60 Q380 6 392 60 T416 60 T440 60 T464 60 Q476 32 488 60 T512 60 T536 60 T560 60 T584 60 T608 60" fill="none" vector-effect="non-scaling-stroke"></path>
+              </svg>
+            </div>
+          </div>
+          <p class="receiver-message" role="status" aria-atomic="true">Station JH270 calling. The guest terminal is open.</p>
         </div>
-        <pre id="boot" class="boot"></pre>
-      </aside>
+        <div class="receiver-controls" hidden>
+          <span class="receiver-small" id="receiver-tune">Tune</span>
+          <div class="receiver-presets" role="radiogroup" aria-labelledby="receiver-tune"></div>
+        </div>
+      </section>
     </section>
 
     <section id="work" class="section">
@@ -157,6 +176,7 @@
   <script src="js/theme.js?v=9"></script>
   <script src="js/github-data.js?v=8"></script>
   <script src="js/github-ui.js?v=8"></script>
-  <script src="js/home.js?v=8"></script>
+  <script src="js/receiver.js?v=1"></script>
+  <script src="js/clock.js?v=1"></script>
 </body>
 </html>
