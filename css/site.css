@@ -235,23 +235,6 @@ h1 {
   line-height: 0.9;
 }
 
-.rule {
-  width: 4.5rem;
-  height: 3px;
-  margin: 1rem 0;
-  background: var(--accent);
-  border: 0;
-}
-
-.lede, .now { max-width: 38rem; }
-
-.lede { margin: 0; font-size: 1.05rem; }
-
-.now {
-  margin: 1rem 0 0;
-  color: var(--muted);
-}
-
 .tag {
   display: inline-block;
   margin-right: 0.4rem;
@@ -356,6 +339,8 @@ h1 {
 
 .text-link {
   display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   margin-top: 1rem;
   color: var(--text);
 }
@@ -530,7 +515,7 @@ kbd {
 }
 
 @media (min-width: 960px) {
-  .hero { grid-template-columns: 1.15fr 0.85fr; align-items: stretch; }
+  .hero { grid-template-columns: 1.15fr 0.85fr; align-items: center; }
 }
 
 @media (max-width: 1040px) {
@@ -540,10 +525,23 @@ kbd {
 @media (max-width: 800px) {
   .top-inner { flex-wrap: wrap; padding: 0.55rem 0; }
   .nav { order: 3; width: 100%; margin: 0 0 0.55rem; }
-  .handles, .repo-grid { grid-template-columns: 1fr; }
+  .repo-grid { grid-template-columns: 1fr; }
   .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .section-head { flex-direction: column; align-items: start; }
   .statusline-inner { flex-wrap: wrap; padding: 0.4rem 0; }
+}
+
+@media (max-width: 540px) {
+  .handles { grid-template-columns: 1fr; gap: 0.4rem; }
+  .handles a {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+    min-height: 2.75rem;
+    padding-block: 0.45rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
