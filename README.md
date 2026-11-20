@@ -7,6 +7,8 @@ Retro homepage for Jinhong270. Plain HTML, CSS, and JavaScript; no runtime depen
 - `/repo/?name=<repository>` shows one public repository without leaving the site: details, languages, README, the commit list, and every commit's changed files. The link at the top, GitHub icon plus `Jinhong270/<repository>`, is the way out to GitHub.
 - `/terminal/` is a guest shell for `guest@jh270.com`. Commands are printed, not executed. `/game` or `/game echo` navigates to `/game/` in the same tab.
 
+Open `/decode` in the terminal for the daily signal puzzle. Guess a five-digit code using digits 1–6. Each guess reports exact and misplaced digits. You have eight tries, and repeating a guess costs no turns. Progress stays in this browser until the next local day.
+
 A first visit uses the device's light or dark setting. The control at the top right of the homepage, repository, and terminal pages switches between day and night. All pages share the same theme initialization. The game inherits that theme, and its menus and signal field follow system theme changes when no preference is saved.
 
 ## ECHO COURIER · 270

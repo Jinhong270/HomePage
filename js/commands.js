@@ -22,7 +22,10 @@
       "Rescue lost signals with the echo of yourself from 2.7 seconds ago.",
       "",
       "Open with /game, or from the homepage repository showcase.",
-      "A JH270 original at /game/. Use your browser's Back button to return here."
+      "A JH270 original at /game/. Use your browser's Back button to return here.",
+      "",
+      "DAILY SIGNAL",
+      "Type /decode to tune in to today's five-digit puzzle."
     ].join("\n"),
     "readme.txt": [
       "Guest shell for jh270.com",
@@ -141,12 +144,108 @@
   async function gameCmd(args, ctx) {
     var name = String(args[0] || "echo").toLowerCase();
     if (args.length > 1 || (name !== "echo" && name !== "echo-courier")) {
-      await ctx.printLine("The only game is ECHO COURIER. Open it with /game or /game echo.", "warn");
+      await ctx.printLine("Use /game echo for ECHO COURIER or /decode for the daily signal.", "warn");
       return;
     }
     await ctx.printLine("Opening ECHO COURIER · 270 at /game/.", "accent");
     if (ctx.stopped()) return;
     window.location.href = "/game/";
+  }
+
+  var signalKey = "jh270.daily-signal.v1";
+  var signalLimit = 8;
+  var signalDigits = /^[1-6]{5}$/;
+  var signalBoard;
+
+  function signalDate(now) {
+    return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  }
+
+  function dailyCode(day) {
+    var seed = 2166136261;
+    for (var i = 0; i < day.length; i++) seed = Math.imul(seed ^ day.charCodeAt(i), 16777619);
+    var value = seed >>> 0;
+    var code = "";
+    for (var place = 0; place < 5; place++) {
+      code += String(1 + value % 6);
+      value = Math.floor(value / 6);
+    }
+    return code;
+  }
+
+  function signalClue(code, guess) {
+    var exact = 0;
+    var unmatched = [];
+    var remaining = [];
+    for (var i = 0; i < code.length; i++) {
+      if (code[i] === guess[i]) exact++;
+      else {
+        unmatched.push(code[i]);
+        remaining.push(guess[i]);
+      }
+    }
+    var misplaced = 0;
+    remaining.forEach(function (digit) {
+      var index = unmatched.indexOf(digit);
+      if (index === -1) return;
+      unmatched.splice(index, 1);
+      misplaced++;
+    });
+    return exact + " exact · " + misplaced + " misplaced";
+  }
+
+  function readSignal(day) {
+    if (!signalBoard || signalBoard.day !== day) signalBoard = { day: day, guesses: [] };
+    try {
+      var saved = JSON.parse(window.localStorage.getItem(signalKey));
+      if (saved && saved.day === day && Array.isArray(saved.guesses) &&
+          saved.guesses.length >= signalBoard.guesses.length && saved.guesses.length <= signalLimit &&
+          saved.guesses.every(function (guess) { return typeof guess === "string" && signalDigits.test(guess); })) {
+        signalBoard = saved;
+      }
+    } catch {
+    }
+    return signalBoard;
+  }
+
+  async function decodeCmd(args, ctx) {
+    var guess = args[0];
+    if (args.length === 1 && guess.toLowerCase() === "help") {
+      await ctx.printLine("Crack a five-digit signal in eight guesses. Use digits 1–6. Digits may repeat.");
+      await ctx.printLine("Exact means right digit, right position. Misplaced means right digit, different position. Each digit counts once.");
+      await ctx.printLine("Try /decode 12345. Read your board with /decode. A new signal arrives at local midnight.");
+      return;
+    }
+    if (args.length && (args.length !== 1 || !signalDigits.test(guess))) {
+      await ctx.printLine("Enter five digits from 1 to 6, like /decode 12345.", "warn");
+      return;
+    }
+    var day = signalDate(new Date());
+    var code = dailyCode(day);
+    var board = readSignal(day);
+    var guesses = board.guesses;
+    var solved = guesses.includes(code);
+    var duplicate = guesses.includes(guess);
+    if (guess && !solved && guesses.length < signalLimit && !duplicate) {
+      guesses.push(guess);
+      solved = guess === code;
+      try {
+        window.localStorage.setItem(signalKey, JSON.stringify(board));
+      } catch {
+      }
+    }
+    await ctx.printLine("Daily signal · " + day, "accent");
+    if (guess && duplicate && !solved && guesses.length < signalLimit) await ctx.printLine("Already on the board. Try a different code.", "warn");
+    for (var i = 0; i < guesses.length; i++) {
+      if (ctx.stopped()) return;
+      await ctx.printLine((i + 1) + "  " + guesses[i] + "  " + signalClue(code, guesses[i]));
+    }
+    if (solved) await ctx.printLine("Signal locked in " + guesses.length + "/" + signalLimit + ". Tune in again tomorrow.", "accent");
+    else if (guesses.length === signalLimit) await ctx.printLine("Transmission closed. Today's signal was " + code + ".", "warn");
+    else {
+      if (!guesses.length) await ctx.printLine("Find five digits from 1 to 6. Digits may repeat.");
+      await ctx.printLine((signalLimit - guesses.length) + " guesses left. Try /decode " + (guesses.length ? "<code>" : "12345") + " or /decode help.", "dim");
+    }
   }
 
   async function readGithub(ctx) {
@@ -500,6 +599,7 @@
     { name: "echo", bare: true, group: "Files", summary: "Print the text you type", usage: "echo <text>  or  /echo <text>", detail: "Prints the text back. It does not evaluate it.", run: echoCmd },
     { name: "game", group: "Play", summary: "Open ECHO COURIER", usage: "/game [echo]", detail: "Rescue signals with your 2.7-second echo. Opens /game/ in this tab; also available from the homepage repository showcase.", run: gameCmd },
     { name: "banner", group: "Play", summary: "Print the JH270 mark", usage: "/banner", detail: "A small text mark for the guest prompt.", run: bannerCmd },
+    { name: "decode", group: "Play", summary: "Crack the daily five-digit signal", usage: "/decode [guess|help]", detail: "Use digits 1–6. You have eight guesses per local day. Type /decode help for the clues.", run: decodeCmd },
     { name: "fortune", group: "Play", summary: "Print a short line", usage: "/fortune", detail: "One line, chosen on this device.", run: fortuneCmd },
     { name: "ping", bare: true, group: "Play", summary: "Pretend to ping a host", usage: "ping [host]  or  /ping [host]", detail: "The numbers are printed locally. No packet is sent.", run: pingCmd },
     { name: "sudo", bare: true, group: "Play", summary: "Ask for a permission you do not have", usage: "sudo [text]  or  /sudo [text]", detail: "guest is not in the sudoers file.", run: sudoCmd }
